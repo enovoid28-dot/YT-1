@@ -19,8 +19,8 @@ audio narasi, render video) disimpan di Google Drive.
 - [x] Naskah VO 10 segmen + 33 tahap storyboard
 - [x] Narasi pria Indonesia dirender (2:19 total)
 - [x] Gambar tahap 1-23 selesai
-- [ ] Gambar tahap 24-33 (limit 10 gambar/turn)
-- [ ] Render final 33 tahap
+- [x] Gambar tahap 24-33 selesai (33/33)
+- [x] Render final 33 tahap -> 2:18, 1080x1920, audio -14 LUFS
 - [x] Thumbnail 1080x1920 dengan judul
 
 ## Google Drive (aset)
@@ -40,3 +40,9 @@ python3 pipeline/thumbnail.py       # thumbnail 1080x1920
 python3 pipeline/render.py          # render semua tahap yang gambarnya ada
 python3 pipeline/render.py --preview 3   # uji cepat 3 klip
 ```
+
+## Hasil akhir
+- Video: `SAINS-CORET_short-01_titik-putih_1080x1920_FINAL.mp4` (Drive: 02 - Video Short)
+  https://drive.google.com/file/d/1DDthPU8TKCVGB-d-3fB_GIDfZPamX_FE/view
+- Thumbnail: https://drive.google.com/file/d/102mjBvapZ6ElnJBF6rkPIWtHBFykRVX_/view
+- Judul/deskripsi/tag: folder 03 (Google Doc)
