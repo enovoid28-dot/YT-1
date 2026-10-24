@@ -5,3 +5,4 @@ assets/audio/*.mp3
 work/
 *.pyc
 __pycache__/
+google_drive/
