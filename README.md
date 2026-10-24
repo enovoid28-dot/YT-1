@@ -66,13 +66,13 @@ Model sheet: `assets/images/char/character-sheet-v2.jpg`
 - Audio: ep02_coldopen.mp3, ep02_intro.mp3, ep02_bab1.mp3
 
 ## Aset EP02 (karakter baku "Si Profesional")
-- 37 dari 45 shot selesai (s16 sudah diregenerasi, bersih)
-- 8 kartu transisi final (programatik, bukan AI): `assets/cards/k0..k7.jpg`
-  generator: `pipeline/cards.py`
-- Sisa: s06, s31, s33, s35, s36, s38, s40, s42
+- 45 dari 45 shot SELESAI 100% (`ep02_s01.jpg` s/d `ep02_s45.jpg`, sudah di-QA & di-upload ke Google Drive)
+- 8 kartu transisi final (programatik, bukan AI): `assets/cards/k0..k7.jpg` (`pipeline/cards.py`)
+- 10 segmen audio narasi lengkap (`ep02_coldopen.mp3` s/d `ep02_endcard.mp3`)
+- Thumbnail 9:16 (`pipeline/thumbnail_ep02.py`) + metadata siap upload (`docs/metadata-ep02.md`)
 
 ## Render EP02 (5:07, tanpa musik)
-- `pipeline/render_ep02.py` — merakit 45 item (kartu + shot), audio diisi DIAM
+- `pipeline/render_ep02.py` — merakit 53 item (45 shot unik + 8 kartu transisi), audio diisi DIAM
   sepanjang durasi kartu sehingga video & narasi selalu sinkron
 - `pipeline/capstyle.py` — gaya caption bersama (auto-fit, hero number)
 - `pipeline/ep02_storyboard.py` — peta shot/segmen/kartu/gerak kamera
