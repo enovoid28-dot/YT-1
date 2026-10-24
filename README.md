@@ -53,3 +53,14 @@ python3 pipeline/render.py --preview 3   # uji cepat 3 klip
 - `script/01-NASKAH-DI-MANA-SEMUANYA.md` — naskah utuh EP01 (8 menit) + versi Short 55 detik
 - `pipeline/caption_style.py` — generator contoh caption 9:16 & 16:9
 - Drive: folder `07 - Paket Naskah dan Caption`
+
+## Karakter baku (final)
+Stickman klasik: kepala bulat putih + kacamata hitam + kemeja putih + dasi hitam
++ jas abu tua. Blok prompt & aturan ada di `docs/03-KARAKTER-BAKU.md`.
+Model sheet: `assets/images/char/character-sheet-v2.jpg`
+
+## Episode 02 — "Kalau Matahari Mati"
+- Naskah 9:16 lengkap (45 shot, 8 kartu transisi, tanpa musik):
+  `script/02-NASKAH-KALAU-MATAHARI-MATI.md`
+- Gambar kunci tahap 1 (desain karakter baru): ep02_s01, s02, s03, s09, s10, s17, s21, s28
+- Audio: ep02_coldopen.mp3, ep02_intro.mp3, ep02_bab1.mp3
