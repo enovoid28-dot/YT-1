@@ -1,3 +1,4 @@
+import hashlib
 #!/usr/bin/env python3
 """Rakit video EP02 "Kalau Matahari Mati" (9:16, tanpa musik).
 
@@ -175,7 +176,9 @@ def build_clip(it, idx):
         vmap = "[v]"
     else:
         vmap = "[bg]"
-    dst = os.path.join(CLIPS, f"c{idx:03d}.mp4")
+    sig = f"{it['path']}|{os.path.getmtime(it['path']):.0f}|{d:.2f}|{it.get('caption')}|{it['move']}"
+    key = hashlib.md5(sig.encode()).hexdigest()[:10]
+    dst = os.path.join(CLIPS, f"c{idx:03d}_{key}.mp4")
     if os.path.exists(dst) and abs(dur(dst) - d) < 0.05:
         return dst
     run([FF, "-y", "-hide_banner", "-loglevel", "error", *inputs,
