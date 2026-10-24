@@ -78,3 +78,9 @@ Model sheet: `assets/images/char/character-sheet-v2.jpg`
 - `pipeline/ep02_storyboard.py` — peta shot/segmen/kartu/gerak kamera
 - Output: `output/STICKMAN_ep02_kalau-matahari-mati_9x16.mp4`
   (5:07, 1080x1920, audio -14 LUFS, room tone saja, TANPA musik)
+
+## YouTube Short #2 — "8 Menit Terakhir Matahari" (57,47 detik, Tanpa Subtitle, Tanpa Musik)
+- Naskah & peta Foley SFX: `script/03-SHORT-KALAU-MATAHARI-MATI.md`
+- Engine render + synthesizer Foley SFX fisik: `pipeline/render_short_ep02.py`
+- 10 ilustrasi 9:16 Ligne-Claire / Kurzgesagt masterpiece (`short02_s01.jpg` s/d `short02_s10.jpg`, skala karakter kecil 15–18%) -> Google Drive
+- Video final: `output/STICKMAN_short-02_kalau-matahari-mati_9x16.mp4` (57,47 detik, 1080x1920, 30 fps, VO -14 LUFS + Foley SFX, 0% musik, 0% subtitle) -> Google Drive
