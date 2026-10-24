@@ -64,3 +64,9 @@ Model sheet: `assets/images/char/character-sheet-v2.jpg`
   `script/02-NASKAH-KALAU-MATAHARI-MATI.md`
 - Gambar kunci tahap 1 (desain karakter baru): ep02_s01, s02, s03, s09, s10, s17, s21, s28
 - Audio: ep02_coldopen.mp3, ep02_intro.mp3, ep02_bab1.mp3
+
+## Aset EP02 (karakter baku "Si Profesional")
+- 18 dari 45 shot selesai: s01-s04, s09, s10, s17, s21, s28, s30, s32, s34, s37, s39, s41, s43, s44, s45
+- 8 kartu transisi final (programatik, bukan AI): `assets/cards/k0..k7.jpg`
+  generator: `pipeline/cards.py`
+- Sisa: s05-s08, s11-s16, s18-s20, s22-s27, s29, s31, s33, s35, s36, s38, s40, s42
