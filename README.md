@@ -54,9 +54,8 @@ python3 pipeline/render.py --preview 3   # uji cepat 3 klip
 - `pipeline/caption_style.py` — generator contoh caption 9:16 & 16:9
 - Drive: folder `07 - Paket Naskah dan Caption`
 
-## Karakter baku (final)
-Stickman klasik: kepala bulat putih + kacamata hitam + kemeja putih + dasi hitam
-+ jas abu tua. Blok prompt & aturan ada di `docs/03-KARAKTER-BAKU.md`.
+## Karakter baku (final — Gaya *Mr Sticky*)
+Stickman klasik polos **tanpa pakaian**: kepala bulat putih bersih + **hanya memakai kacamata hitam kotak** (badan, tangan, dan kaki murni garis hitam tipis sederhana tanpa baju/jas/dasi). Blok prompt & aturan ada di `docs/03-KARAKTER-BAKU.md`.
 Model sheet: `assets/images/char/character-sheet-v2.jpg`
 
 ## Episode 02 — "Kalau Matahari Mati"
@@ -79,8 +78,8 @@ Model sheet: `assets/images/char/character-sheet-v2.jpg`
 - Output: `output/STICKMAN_ep02_kalau-matahari-mati_9x16.mp4`
   (5:07, 1080x1920, audio -14 LUFS, room tone saja, TANPA musik)
 
-## YouTube Short #2 — "8 Menit Terakhir Matahari" (57,47 detik, Tanpa Subtitle, Tanpa Musik)
+## YouTube Short #2 — "8 Menit Terakhir Matahari" (57,47 detik, Gaya *Mr Sticky*, Tanpa Subtitle, Tanpa Musik)
 - Naskah & peta Foley SFX: `script/03-SHORT-KALAU-MATAHARI-MATI.md`
-- Engine render + synthesizer Foley SFX fisik: `pipeline/render_short_ep02.py`
-- 10 ilustrasi 9:16 Ligne-Claire / Kurzgesagt masterpiece (`short02_s01.jpg` s/d `short02_s10.jpg`, skala karakter kecil 15–18%) -> Google Drive
+- Engine render 20 beat dinamis + synthesizer Foley SFX fisik: `pipeline/render_short_ep02.py`
+- 10 ilustrasi 9:16 gaya *Mr Sticky* (`short02_s01.jpg` s/d `short02_s10.jpg`, Stickman polos tanpa pakaian + kacamata hitam + balon *callout* / papan tulis edukatif) -> Google Drive
 - Video final: `output/STICKMAN_short-02_kalau-matahari-mati_9x16.mp4` (57,47 detik, 1080x1920, 30 fps, VO -14 LUFS + Foley SFX, 0% musik, 0% subtitle) -> Google Drive
