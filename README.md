@@ -66,8 +66,15 @@ Model sheet: `assets/images/char/character-sheet-v2.jpg`
 - Audio: ep02_coldopen.mp3, ep02_intro.mp3, ep02_bab1.mp3
 
 ## Aset EP02 (karakter baku "Si Profesional")
-- 28 dari 45 shot selesai: s01-s05, s07-s18, s21, s28, s30, s32, s34, s37, s39, s41, s43, s44, s45
-- Perlu regenerasi: s16 (ada artefak kotak abu-abu di kiri karakter)
+- 37 dari 45 shot selesai (s16 sudah diregenerasi, bersih)
 - 8 kartu transisi final (programatik, bukan AI): `assets/cards/k0..k7.jpg`
   generator: `pipeline/cards.py`
-- Sisa: s06, s19, s20, s22-s27, s29, s31, s33, s35, s36, s38, s40, s42 (+ ulang s16)
+- Sisa: s06, s31, s33, s35, s36, s38, s40, s42
+
+## Render EP02 (5:07, tanpa musik)
+- `pipeline/render_ep02.py` — merakit 45 item (kartu + shot), audio diisi DIAM
+  sepanjang durasi kartu sehingga video & narasi selalu sinkron
+- `pipeline/capstyle.py` — gaya caption bersama (auto-fit, hero number)
+- `pipeline/ep02_storyboard.py` — peta shot/segmen/kartu/gerak kamera
+- Output: `output/STICKMAN_ep02_kalau-matahari-mati_9x16.mp4`
+  (5:07, 1080x1920, audio -14 LUFS, room tone saja, TANPA musik)
