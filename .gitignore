@@ -1,7 +1,10 @@
+# Aset biner (gambar, kartu, audio, video) disimpan di Google Drive — JANGAN commit ke Git
+assets/images/
+assets/cards/
+assets/audio/*.mp3
+assets/audio/*.wav
+assets/audio/_concat.txt
 output/
 work/
 __pycache__/
 *.pyc
-assets/audio/_concat.txt
-assets/audio/_gap.wav
-assets/audio/narasi*.wav

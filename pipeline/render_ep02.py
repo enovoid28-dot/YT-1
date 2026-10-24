@@ -24,6 +24,8 @@ CLIPS = os.path.join(WORK, "clips")
 CAPS = os.path.join(WORK, "caps")
 OUT = os.path.join(ROOT, "output")
 AUD = os.path.join(ROOT, "assets/audio")
+FALLBACK_SHOTS = [6, 42, 35, 33, 1]
+shots_all = []
 
 
 def run(cmd):
@@ -73,10 +75,25 @@ def plan():
                               "caption": CAP.get(n, ""), "move": MOVE.get(n, "in"),
                               "shot": n, "first": j == 0, "audio": audio})
         else:
-            # segmen tanpa shot (endcard) -> tampilkan kartu penutup selama VO
-            kp = card_path("k7")
-            items.append({"kind": "card", "path": kp, "dur": round(sd, 3),
-                          "caption": None, "move": "in", "audio": audio})
+            # tidak ada shot tersedia
+            if os.path.basename(seg["audio"]).startswith("ep02_endcard"):
+                items.append({"kind": "card", "path": card_path("k7"), "dur": round(sd, 3),
+                              "caption": None, "move": "in", "audio": audio})
+            else:
+                # pakai shot cadangan (atmosfer) supaya tidak ada kartu statis panjang
+                pool = [n for n in FALLBACK_SHOTS if os.path.exists(shot_path(n))] or \
+                       ([shots_all[0]] if shots_all else [])
+                if not pool:
+                    items.append({"kind": "card", "path": card_path("k1"),
+                                  "dur": round(sd, 3), "caption": None,
+                                  "move": "in", "audio": audio})
+                else:
+                    each = sd / len(pool)
+                    for j, n in enumerate(pool):
+                        items.append({"kind": "shot", "path": shot_path(n),
+                                      "dur": round(each, 3),
+                                      "caption": CAP.get(n, ""), "move": "up",
+                                      "shot": n, "first": j == 0, "audio": audio})
         if seg.get("card_after"):
             add_card(seg["card_after"])
     return items
