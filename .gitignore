@@ -1,0 +1,7 @@
+# gambar & audio mentah tinggal di Google Drive (bukan di GitHub)
+assets/images/
+assets/audio/*.wav
+assets/audio/*.mp3
+work/
+*.pyc
+__pycache__/
