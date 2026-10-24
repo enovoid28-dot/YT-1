@@ -1,498 +1,418 @@
 #!/usr/bin/env python3
-"""Render YouTube Short #2 — 'Kalau Matahari Mati' (< 60 detik, 9:16, TANPA subtitle, TANPA musik).
-
-Gaya visual & editing mengacu pada 'Mr Sticky' (Las PEORES TORTURAS de la Historia de la Humanidad):
-  - Karakter: Stickman klasik polos TANPA pakaian, kepala bulat putih bersih, HANYA memakai kacamata hitam.
-  - Visual: 10 adegan 2D flat vector kartun eye-level + balon callout / papan tulis edukatif yang
-    100% sesuai kalimat narator dan langsung mudah dibayangkan penonton.
-  - Editing: 20 beat kamera dinamis (2 beat per shot: establishing + fokus callout/detail, ~2,8 detik/beat),
-    warna cerah bersih TANPA vignette gelap, TANPA grain kasar, potongan tegas (crisp cuts).
-  - Audio: Durasi < 60,0 detik (57,47 detik), TANPA subtitle, TANPA musik — hanya Voiceover (-14 LUFS)
-    + Foley & Sound Effects fisik (pop callout, klik sakelar, ketukan papan tulis, angin, es retak,
-    gelembung laut, api, detak jantung, jam).
+"""
+Render YouTube Short #2: 'SAAT MATAHARI MATI: TAHAP DEMI TAHAP SEBENARNYA'
+- 40 Gambar Mahakarya 2D Environmental Cross-Section Unik (batch1_01..10, batch2_01..10, batch3_01..10, batch4_01..10)
+  tanpa duplikasi crop & tanpa diagram/panah AI slop.
+- Durasi target: ~1:42 (102 detik, tepat di rentang 1:30 - 1:50 permintaan user).
+- 12 segmen Voiceover Bahasa Indonesia kronologis dari awal hingga akhir kematian Matahari.
+- 0% Subtitle di layar, 0% Musik, 100% Voiceover (-14 LUFS) + Foley SFX fisik 40 tahap.
 """
 import os
-import re
-import wave
 import subprocess
+import wave
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 import imageio_ffmpeg
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FF = imageio_ffmpeg.get_ffmpeg_exe()
+ROOT = "/home/user/YT-1"
 IMG = os.path.join(ROOT, "assets/images")
 AUD = os.path.join(ROOT, "assets/audio")
-WORK = os.path.join(ROOT, "work/short02")
-CLIPS = os.path.join(WORK, "clips")
-OUT = os.path.join(ROOT, "output")
-
-W, H, FPS = 1080, 1920, 30
+WORK = os.path.join(ROOT, "work/short02_40")
+OUT_VIDEO = os.path.join(ROOT, "output/STICKMAN_short-02_kalau-matahari-mati_9x16.mp4")
+OUT_THUMB = os.path.join(ROOT, "output/thumbnail_short_ep02.jpg")
+FF = imageio_ffmpeg.get_ffmpeg_exe()
+FPS = 30
 SR = 48000
 
-# 10 shot:
-# (image_file, audio_file, slice_ranges, split_ratio, beatA_cam, beatB_cam, sfx_preset)
-# cam tuple: (z0, z1, cx, cy) where cx, cy in [0..1] are the normalized center point of the crop window
-SHOTS = [
-    # S01: Siang terang & jalan santai makan es krim -> fokus balon callout Matahari dicabut stekernya
-    ("short02_s01.jpg", "s02_01.mp3", [(0.28, 9.95)], 0.54,
-     (1.00, 1.05, 0.50, 0.48), (1.05, 1.00, 0.50, 0.50), "hook_clock_blackout"),
-
-    # S02: Stickman menunjuk papan tulis -> zoom lembut ke diagram jarak Matahari-Bumi & stopwatch 8m20d
-    ("short02_s02.jpg", "s02_02.mp3", [(0.24, 5.58)], 0.47,
-     (1.00, 1.04, 0.50, 0.50), (1.04, 1.08, 0.52, 0.48), "whiteboard_tap_photon"),
-
-    # S03: Langit klik gelap & stickman berpegangan tiang lampu -> callout Bumi lepas orbit lurus
-    ("short02_s03.jpg", "s02_03.mp3", [(3.62, 11.60)], 0.50,
-     (1.00, 1.05, 0.50, 0.50), (1.05, 1.00, 0.50, 0.46), "cable_snap_orbit"),
-
-    # S04: Hari ke-7 suhu anjlok 0°C (termometer membeku) -> stickman menggigil di dekat tong api
-    ("short02_s04.jpg", "s02_04.mp3", [(0.25, 5.20)], 0.48,
-     (1.00, 1.05, 0.50, 0.48), (1.05, 1.01, 0.50, 0.52), "arctic_wind_fire"),
-
-    # S05: Dermaga & pohon mati tanpa fotosintesis -> balon callout fitoplankton mati di laut
-    ("short02_s05.jpg", "s02_05.mp3", [(0.20, 7.22)], 0.44,
-     (1.00, 1.04, 0.50, 0.48), (1.04, 1.07, 0.52, 0.52), "underwater_plankton_pop"),
-
-    # S06: Tahun 1 samudra membeku -70°C di atas -> ventilasi vulkanik & kepiting laut dalam
-    ("short02_s06.jpg", "s02_06.mp3", [(0.22, 6.58)], 0.48,
-     (1.05, 1.02, 0.50, 0.42), (1.02, 1.06, 0.50, 0.58), "glacier_crack_vent"),
-
-    # S07: Permukaan beku -> bunker bawah tanah hangat dengan radiator panas bumi & lampu hidroponik
-    ("short02_s07.jpg", "s02_07.mp3", [(0.26, 7.75)], 0.50,
-     (1.00, 1.05, 0.50, 0.48), (1.05, 1.08, 0.52, 0.54), "bunker_steam_growlamp"),
-
-    # S08: Matahari bengkak jadi Raksasa Merah menelan planet -> stickman keringatan & payung terbakar di laut mendidih
-    ("short02_s08.jpg", "s02_08.mp3", [(0.26, 2.60), (6.18, 11.80)], 0.50,
-     (1.05, 1.02, 0.50, 0.44), (1.02, 1.06, 0.50, 0.54), "red_giant_boil"),
-
-    # S09: Nebula cincin warna-warni -> balon callout perbandingan Katai Putih seukuran Bumi
-    ("short02_s09.jpg", "s02_09.mp3", [(0.62, 10.45)], 0.46,
-     (1.00, 1.04, 0.50, 0.48), (1.04, 1.08, 0.52, 0.50), "nebula_heartbeat"),
-
-    # S10: Callout tulang & sel darah dari debu bintang -> taman cerah & Matahari bersinar
-    ("short02_s10.jpg", "s02_10.mp3", [(0.25, 12.00)], 0.53,
-     (1.05, 1.08, 0.52, 0.50), (1.06, 1.00, 0.50, 0.50), "stardust_sunny_loop"),
+# 12 segmen VO kronologis dipetakan secara presisi ke 40 gambar unik (batch1_01 .. batch4_10)
+SEGMENTS = [
+    # 01: Kondisi Matahari & Bumi Hari Ini (3 gambar: batch1_01..03)
+    ("sun50_01.mp3", (3.96, 18.20), " birds_day", [
+        ("batch1_01.jpg", "zoom_in",  "Bumi hari ini: kota kanal yang damai di bawah sinar Matahari stabil"),
+        ("batch1_02.jpg", "pan_down", "Observatorium gunung & ruang kontrol bawah tanah memantau fusi inti Matahari"),
+        ("batch1_03.jpg", "zoom_out", "Lembah subur, bendungan air, dan kincir kayu di iklim Bumi yang ideal"),
+    ]),
+    # 02: Asal-usul Cahaya & Sabuk Layak Huni menuju Pemanasan Awal (3 gambar: tahap1_10 ref / batch1_04..06)
+    ("sun50_09_origin.mp3", None, "lab_hum", [
+        ("batch1_04.jpg", "zoom_in",  "+500 Juta Tahun: Matahari makin terik, warga mengantre air pendingin di kota batu"),
+        ("batch1_05.jpg", "pan_up",   "+800 Juta Tahun: Tebing gletser es kutub runtuh mencair menenggelamkan menara"),
+        ("batch1_06.jpg", "zoom_in",  "+1 Miliar Tahun: Sungai mengering, warga menggali sumur dalam di ngarai retak"),
+    ]),
+    # 03: +1 Miliar Tahun - Lautan Menguap & Pesisir Mendidih (3 gambar: batch1_07..09)
+    ("sun50_02.mp3", (3.30, 15.28), "steam_boil", [
+        ("batch1_07.jpg", "zoom_in",  "+1,1 Miliar Tahun: Air laut pelabuhan mendidih beruap, warga mengungsi ke truk"),
+        ("batch1_08.jpg", "pan_down", "+1,2 Miliar Tahun: Badai uap air & petir menghantam pintu terowongan gunung"),
+        ("batch1_09.jpg", "zoom_out", "+1,5 Miliar Tahun: Instalasi pipa penyulingan air raksasa di gua bawah tanah"),
+    ]),
+    # 04: +1,5 - 2,5 Miliar Tahun - Eksodus Bawah Tanah & Samudra Mengering (3 gambar: batch1_10, batch2_01, batch2_02)
+    ("sun50_10_moist_uv.mp3", None, "wind_shelter", [
+        ("batch1_10.jpg", "pan_down", "+2 Miliar Tahun: Permukaan 100°C, eksodus ke kota bunker & hidroponik bawah tanah"),
+        ("batch2_01.jpg", "zoom_in",  "+2,5 Miliar Tahun: Samudra menguap habis menyisakan kapal kandas & kerangka paus"),
+        ("batch2_02.jpg", "zoom_out", "+2,8 Miliar Tahun: Lempeng tektonik macet, gunung berapi meletus di atas bunker"),
+    ]),
+    # 05: +3 Miliar Tahun - Neraka Rumah Kaca Kembaran Venus (3 gambar: batch2_03..05)
+    ("sun50_03.mp3", None, "venus_furnace", [
+        ("batch2_03.jpg", "zoom_in",  "+3 Miliar Tahun: Awan asam pekat & gedung meleleh, Bumi menjadi kembaran Venus"),
+        ("batch2_04.jpg", "pan_down", "+3,5 Miliar Tahun: Cadangan air gua bawah tanah terakhir mengering tersisa lumpur"),
+        ("batch2_05.jpg", "zoom_out", "+4 Miliar Tahun: Silo gunung terbuka, pemuatan tanaman ke roket evakuasi bawah tanah"),
+    ]),
+    # 06: +4,5 Miliar Tahun - Tektonik & Hidrogen Inti Mulai Habis (3 gambar: batch2_06..08)
+    ("sun50_11_tectonic_venus.mp3", None, "alarm_rumble", [
+        ("batch2_06.jpg", "zoom_in",  "+4,5 Miliar Tahun: Dek observasi memantau gejolak Matahari saat hidrogen inti habis"),
+        ("batch2_07.jpg", "pan_up",   "+5 Miliar Tahun: Matahari membengkak menjadi bintang Sub-Raksasa jingga raksasa"),
+        ("batch2_08.jpg", "zoom_out", "+5,2 Miliar Tahun: Angin surya merobohkan menara radio, bunker dikunci rapat"),
+    ]),
+    # 07: +5,5 - 6,5 Miliar Tahun - Sub-Raksasa ke Raksasa Merah Menelan Merkurius (4 gambar: batch2_09, batch2_10, batch3_01, batch3_02)
+    ("sun50_04.mp3", None, "solar_roar", [
+        ("batch2_09.jpg", "zoom_in",  "+5,5 Miliar Tahun: Kerak planet Merkurius retak meleleh di bawah dinding api surya"),
+        ("batch2_10.jpg", "zoom_out", "+6 Miliar Tahun: Planet Merkurius ditelan bulat-bulat oleh Raksasa Merah"),
+        ("batch3_01.jpg", "pan_down", "+6,5 Miliar Tahun: Atmosfer pekat Venus terbakar menjadi ekor api raksasa"),
+        ("batch3_02.jpg", "zoom_in",  "+6,8 Miliar Tahun: Planet Venus jatuh berpilin dan ditelan Raksasa Merah"),
+    ]),
+    # 08: +7 Miliar Tahun - Raksasa Merah 200x Lipat & Bumi Meleleh Jadi Samudra Lava (4 gambar: batch3_03..06)
+    ("sun50_05.mp3", None, "lava_melt", [
+        ("batch3_03.jpg", "zoom_in",  "+7 Miliar Tahun: Raksasa Merah 200x lipat memenuhi langit di atas jembatan membara"),
+        ("batch3_04.jpg", "pan_down", "+7,1 Miliar Tahun: Tebing gunung batu Bumi meleleh menjadi air terjun magma pijar"),
+        ("batch3_05.jpg", "zoom_out", "+7,2 Miliar Tahun: Seluruh kerak Bumi berubah menjadi samudra lava pijar 1500°C"),
+        ("batch3_06.jpg", "zoom_in",  "+7,3 Miliar Tahun: Kapal induk evakuasi meninggalkan Bumi yang berpijar lava"),
+    ]),
+    # 09: +7,4 - 7,55 Miliar Tahun - Bulan Es Europa Mencair Menjadi Lautan Baru (3 gambar: batch3_07..09)
+    ("sun50_06.mp3", (1.33, 16.68), "ice_thaw_water", [
+        ("batch3_07.jpg", "pan_up",   "+7,4 Miliar Tahun: Pos teleskop di bulan Jupiter menyambut bergesernya zona hangat"),
+        ("batch3_08.jpg", "zoom_in",  "+7,5 Miliar Tahun: Tebing gletser es bulan Europa mencair menjadi air terjun deras"),
+        ("batch3_09.jpg", "zoom_out", "+7,55 Miliar Tahun: Permukiman terapung & kebun hijau di lautan hangat baru Europa"),
+    ]),
+    # 10: +7,6 - 7,8 Miliar Tahun - Kilatan Helium 100 Juta Derajat & Denyut Termal (3 gambar: batch3_10, batch4_01, batch4_02)
+    ("sun50_12_helium_flash.mp3", None, "helium_blast", [
+        ("batch3_10.jpg", "zoom_in",  "+7,6 Miliar Tahun: Kilatan Helium 100 juta derajat mengguncang ruang seismik bawah tanah"),
+        ("batch4_01.jpg", "pan_up",   "+7,7 Miliar Tahun: Denyut termal raksasa melontarkan cincin gelombang gas Matahari"),
+        ("batch4_02.jpg", "zoom_out", "+7,8 Miliar Tahun: Kulit gas luar Matahari terlepas membubung ke angkasa"),
+    ]),
+    # 11: +7,9 - 8,5 Miliar Tahun - Nebula Planeter & Inti Katai Putih Seukuran Bumi (4 gambar: batch4_03..06)
+    ("sun50_07.mp3", None, "nebula_chime", [
+        ("batch4_03.jpg", "zoom_in",  "+7,9 Miliar Tahun: Kelahiran Nebula Planeter zamrud-ungu di atas observatorium gunung"),
+        ("batch4_04.jpg", "pan_down", "+8 Miliar Tahun: Nebula memudar menyisakan titik Katai Putih di atas es yang membeku"),
+        ("batch4_05.jpg", "zoom_in",  "Kepadatan Katai Putih: derek baja mengangkat sampel inti padat yang meretakkan batu"),
+        ("batch4_06.jpg", "zoom_out", "+9 Miliar Tahun: Sungai lava masa lalu membeku jadi ngarai obsidian di bawah Katai Putih"),
+    ]),
+    # 12: +10 Miliar Tahun+ - Katai Hitam & Kelahiran Bintang/Planet Baru dari Debu Bintang (4 gambar: batch4_07..10)
+    ("sun50_08.mp3", None, "rebirth_finale", [
+        ("batch4_07.jpg", "zoom_in",  "+10 Miliar Tahun: Katai Putih mendingin dan mengkristal menjadi berlian karbon redup"),
+        ("batch4_08.jpg", "pan_down", "Akhir Abadi: Katai Hitam gelap di langit beku & kehidupan di bunker geotermal bawah tanah"),
+        ("batch4_09.jpg", "zoom_in",  "Daur Ulang Kosmik: Abu nebula Matahari memadat melahirkan bintang-bintang muda baru"),
+        ("batch4_10.jpg", "zoom_out", "Siklus Kehidupan Baru: Lembah hijau subur yang lahir dari debu bintang kuno"),
+    ]),
 ]
 
 
 def run(cmd):
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     if r.returncode != 0:
-        raise RuntimeError(f"ffmpeg gagal:\n{r.stderr[-1200:]}")
+        raise RuntimeError(f"Command failed: {' '.join(cmd)}\n{r.stderr[-1200:]}")
     return r
 
 
 def dur(path):
-    r = subprocess.run([FF, "-hide_banner", "-i", path], capture_output=True, text=True)
-    m = re.search(r"Duration:\s*(\d+):(\d+):([\d.]+)", r.stderr)
-    if not m:
-        raise RuntimeError(f"durasi tidak terbaca: {path}")
-    h, mn, s = m.groups()
-    return int(h) * 3600 + int(mn) * 60 + float(s)
+    r = subprocess.run([FF, "-i", path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    for line in r.stderr.splitlines():
+        if "Duration:" in line:
+            t = line.split("Duration:")[1].split(",")[0].strip()
+            h, m, s = t.split(":")
+            return int(h) * 3600 + int(m) * 60 + float(s)
+    raise RuntimeError(f"Cannot parse duration: {path}")
 
 
-def build_vo_segments():
-    """Potong & rapikan 10 segmen VO dengan tempo Shorts yang tegas (< 60 detik total)."""
-    os.makedirs(WORK, exist_ok=True)
-    seg_info = []
-    for idx, (img_f, aud_f, parts, split_r, cam_a, cam_b, sfx_kind) in enumerate(SHOTS, 1):
-        src = os.path.join(AUD, aud_f)
-        dst = os.path.join(WORK, f"vo_{idx:02d}.wav")
-        if len(parts) == 1:
-            a, b = parts[0]
-            fc = (f"[0:a]atrim={a}:{b},asetpts=PTS-STARTPTS,"
-                  f"silenceremove=stop_periods=-1:stop_silence=0.09:stop_threshold=-36dB,"
-                  f"atempo=1.24,afade=t=in:st=0:d=0.025,"
-                  f"apad=pad_dur=0.10[a]")
+def build_thumbnail():
+    """Bangun Thumbnail 9:16 dari gabungan adegan environmental terbaik (batch1_01, batch1_10, batch3_04, batch4_03)."""
+    W, H = 1080, 1920
+    canvas = Image.new("RGB", (W, H), (15, 12, 10))
+    # Gunakan batch3_04 (tebing gunung meleleh menjadi air terjun lava + stickman berlari di jembatan baja) sebagai hero utama
+    hero = Image.open(os.path.join(IMG, "batch3_04.jpg")).convert("RGB")
+    sw, sh = hero.size
+    target_r = W / H
+    if sw / sh > target_r:
+        nw = int(sh * target_r)
+        left = (sw - nw) // 2
+        hero = hero.crop((left, 0, left + nw, sh))
+    else:
+        nh = int(sw / target_r)
+        top = (sh - nh) // 2
+        hero = hero.crop((0, top, sw, top + nh))
+    hero = hero.resize((W, H), Image.LANCZOS)
+    hero = ImageEnhance.Contrast(hero).enhance(1.06)
+    canvas.paste(hero, (0, 0))
+
+    # Tambahkan 4 panel progresi tahap di bagian atas (Bumi Cerah -> Bunker 100°C -> Lava 1500°C -> Nebula & Katai Hitam)
+    strip_files = ["batch1_01.jpg", "batch1_10.jpg", "batch3_05.jpg", "batch4_03.jpg"]
+    pw, ph = 248, 320
+    gap = 12
+    start_x = (W - (pw * 4 + gap * 3)) // 2
+    y_top = 42
+    draw = ImageDraw.Draw(canvas, "RGBA")
+    draw.rounded_rectangle([start_x - 14, y_top - 14, start_x + pw * 4 + gap * 3 + 14, y_top + ph + 14],
+                           radius=20, fill=(10, 10, 14, 215), outline=(255, 200, 60, 255), width=4)
+    for idx, sf in enumerate(strip_files):
+        im = Image.open(os.path.join(IMG, sf)).convert("RGB")
+        iw, ih = im.size
+        r = pw / ph
+        if iw / ih > r:
+            nw = int(ih * r)
+            im = im.crop(((iw - nw) // 2, 0, (iw + nw) // 2, ih))
         else:
-            (a1, b1), (a2, b2) = parts
-            fc = (f"[0:a]atrim={a1}:{b1},asetpts=PTS-STARTPTS[p1];"
-                  f"[0:a]atrim={a2}:{b2},asetpts=PTS-STARTPTS[p2];"
-                  f"[p1][p2]concat=n=2:v=0:a=1,"
-                  f"silenceremove=stop_periods=-1:stop_silence=0.09:stop_threshold=-36dB,"
-                  f"atempo=1.24,afade=t=in:st=0:d=0.025,"
-                  f"apad=pad_dur=0.10[a]")
+            nh = int(iw / r)
+            im = im.crop((0, (ih - nh) // 2, iw, (ih + nh) // 2))
+        im = im.resize((pw, ph), Image.LANCZOS)
+        x = start_x + idx * (pw + gap)
+        canvas.paste(im, (x, y_top))
+        draw.rectangle([x, y_top, x + pw, y_top + ph], outline=(255, 255, 255, 230), width=3)
+
+    # Banner judul kuning-putih tegas di bawah strip
+    draw.rounded_rectangle([44, 392, W - 44, 625], radius=24, fill=(12, 12, 18, 225),
+                           outline=(255, 195, 40, 255), width=5)
+    f_big = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 76)
+    f_sub = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 44)
+
+    t1 = "SAAT MATAHARI MATI"
+    b1 = draw.textbbox((0, 0), t1, font=f_big)
+    x1 = (W - (b1[2] - b1[0])) // 2
+    draw.text((x1, 418), t1, font=f_big, fill=(255, 220, 45), stroke_width=8, stroke_fill=(0, 0, 0))
+
+    t2 = "40 TAHAP KRONOLOGIS SEBENARNYA"
+    b2 = draw.textbbox((0, 0), t2, font=f_sub)
+    x2 = (W - (b2[2] - b2[0])) // 2
+    draw.text((x2, 528), t2, font=f_sub, fill=(255, 255, 255), stroke_width=6, stroke_fill=(0, 0, 0))
+
+    canvas.save(OUT_THUMB, quality=95)
+
+
+def prepare_40_frames():
+    """Siapkan 40 gambar 1080x1920 tajam tanpa crop berlebih dari batch1_01..batch4_10."""
+    os.makedirs(WORK, exist_ok=True)
+    W, H = 1080, 1920
+    stage_list = []
+    idx = 0
+    for aud_f, sl, sfx_kind, items in SEGMENTS:
+        for src_name, move, desc in items:
+            idx += 1
+            src_path = os.path.join(IMG, src_name)
+            im = Image.open(src_path).convert("RGB")
+            sw, sh = im.size
+            target_r = W / H
+            if sw / sh > target_r:
+                nw = int(sh * target_r)
+                left = (sw - nw) // 2
+                im = im.crop((left, 0, left + nw, sh))
+            else:
+                nh = int(sw / target_r)
+                top = (sh - nh) // 2
+                im = im.crop((0, top, sw, top + nh))
+            im = im.resize((W, H), Image.LANCZOS)
+            im = ImageEnhance.Contrast(im).enhance(1.03)
+            im = ImageEnhance.Sharpness(im).enhance(1.08)
+            out_path = os.path.join(WORK, f"scene_{idx:02d}.jpg")
+            im.save(out_path, quality=95)
+            stage_list.append({
+                "idx": idx,
+                "src": src_name,
+                "img": out_path,
+                "move": move,
+                "sfx": sfx_kind,
+                "desc": desc,
+            })
+    return stage_list
+
+
+def build_vo_and_assign_durations(stage_list):
+    """Rapikan 12 segmen VO kronologis agar total durasi berada di ~102 detik (1:42, tepat di rentang 1:30 - 1:50)."""
+    vo_wavs = []
+    seg_idx = 0
+    cursor = 0
+    for aud_f, sl, sfx_kind, items in SEGMENTS:
+        seg_idx += 1
+        src = os.path.join(AUD, aud_f)
+        dst = os.path.join(WORK, f"vo40_{seg_idx:02d}.wav")
+        trim = f"atrim={sl[0]}:{sl[1]},asetpts=PTS-STARTPTS," if sl else ""
+        fc = (f"[0:a]{trim}silenceremove=start_periods=1:start_silence=0.04:start_threshold=-34dB:"
+              f"stop_periods=-1:stop_silence=0.06:stop_threshold=-34dB,"
+              f"atempo=1.36,afade=t=in:st=0:d=0.02,apad=pad_dur=0.08[a]")
         run([FF, "-y", "-hide_banner", "-loglevel", "error", "-i", src,
              "-filter_complex", fc, "-map", "[a]", "-ar", str(SR), "-ac", "2",
              "-c:a", "pcm_s16le", dst])
         d = dur(dst)
-        seg_info.append({
-            "idx": idx,
-            "img": os.path.join(IMG, img_f),
-            "vo": dst,
-            "dur": round(d, 3),
-            "split_r": split_r,
-            "cam_a": cam_a,
-            "cam_b": cam_b,
-            "sfx": sfx_kind,
-        })
-    return seg_info
+        vo_wavs.append(dst)
+        n_items = len(items)
+        per_item = d / n_items
+        for k in range(n_items):
+            stage_list[cursor + k]["dur"] = per_item
+        cursor += n_items
+
+    total_dur = sum(s["dur"] for s in stage_list)
+    vo_list_txt = os.path.join(WORK, "vo40_list.txt")
+    with open(vo_list_txt, "w") as f:
+        for w in vo_wavs:
+            f.write(f"file '{w}'\n")
+    vo_master = os.path.join(WORK, "vo40_master.wav")
+    run([FF, "-y", "-hide_banner", "-loglevel", "error", "-f", "concat", "-safe", "0",
+         "-i", vo_list_txt, "-ar", str(SR), "-ac", "2", "-c:a", "pcm_s16le", vo_master])
+    return vo_master, total_dur
 
 
-# ----------------- SINTESIS FOLEY & SOUND EFFECTS FISIK (GAYA MR STICKY) -----------------
+def synth_sfx_40(stage_list, total_dur):
+    """Sintesis Foley SFX fisik diegetik untuk 40 adegan (tanpa musik sama sekali)."""
+    n_total = int(total_dur * SR) + SR
+    left = np.zeros(n_total, dtype=np.float32)
+    right = np.zeros(n_total, dtype=np.float32)
+    rng = np.random.default_rng(2026)
 
-def _lp_noise(rng, n, alpha=0.06):
-    w = rng.standard_normal(n).astype(np.float64)
-    out = np.zeros_like(w)
-    acc = 0.0
-    for i in range(n):
-        acc += alpha * (w[i] - acc)
-        out[i] = acc
-    return out
-
-
-def _bp_whoosh(rng, dur_s, f0=180.0, f1=620.0, pan_dir=1):
-    n = int(dur_s * SR)
-    t = np.linspace(0, dur_s, n, endpoint=False)
-    env = np.sin(np.pi * t / dur_s) ** 2.2
-    raw = _lp_noise(rng, n, alpha=0.08) - _lp_noise(rng, n, alpha=0.015)
-    mod = 0.65 + 0.35 * np.sin(2 * np.pi * np.linspace(f0, f1, n) * t * 0.02)
-    sig = raw * env * mod
-    pan = np.linspace(0.25, 0.75, n) if pan_dir > 0 else np.linspace(0.75, 0.25, n)
-    return np.column_stack([sig * (1 - pan), sig * pan])
-
-
-def _callout_pop(rng):
-    """Bunyi 'pop' fisik lembut khas balon callout / zoom-in Mr Sticky (non-musikal)."""
-    n = int(0.065 * SR)
-    t = np.linspace(0, 0.065, n, endpoint=False)
-    freq = 280.0 + 520.0 * (1.0 - np.exp(-t * 45.0))
-    phase = 2 * np.pi * np.cumsum(freq) / SR
-    pop = np.sin(phase) * np.exp(-t * 42.0) * 0.45
-    thump = np.exp(-t * 95.0) * rng.standard_normal(n) * 0.18
-    mono = (pop + thump) * 0.55
-    return np.column_stack([mono, mono])
-
-
-def _wood_tap(rng):
-    """Ketukan tongkat kayu di papan tulis."""
-    n = int(0.04 * SR)
-    t = np.linspace(0, 0.04, n, endpoint=False)
-    tap = np.exp(-t * 140.0) * (0.6 * np.sin(2 * np.pi * 1150.0 * t) + 0.5 * rng.standard_normal(n))
-    mono = tap * 0.45
-    return np.column_stack([mono * 0.9, mono * 1.1])
-
-
-def _add_at(buf, start_s, clip_st):
-    i0 = max(0, int(round(start_s * SR)))
-    i1 = min(len(buf), i0 + len(clip_st))
-    if i1 > i0:
-        buf[i0:i1] += clip_st[: i1 - i0]
-
-
-def _clock_tick(rng, high=True):
-    n = int(0.045 * SR)
-    t = np.linspace(0, 0.045, n, endpoint=False)
-    f = 2400.0 if high else 1750.0
-    click = np.exp(-t * 180.0) * (0.7 * np.sin(2 * np.pi * f * t) + 0.5 * rng.standard_normal(n))
-    body = np.exp(-t * 65.0) * np.sin(2 * np.pi * 420.0 * t) * 0.35
-    mono = (click + body) * 0.42
-    return np.column_stack([mono * 0.95, mono * 1.05])
-
-
-def _breaker_blackout(rng):
-    n = int(0.95 * SR)
-    t = np.linspace(0, 0.95, n, endpoint=False)
-    clack1 = np.exp(-t * 95.0) * rng.standard_normal(n) * 0.9
-    t2 = np.maximum(0.0, t - 0.055)
-    clack2 = (t >= 0.055) * np.exp(-t2 * 70.0) * rng.standard_normal(n) * 0.75
-    freq = 28.0 + 87.0 * np.exp(-t * 4.5)
-    phase = 2 * np.pi * np.cumsum(freq) / SR
-    sub = np.sin(phase) * np.exp(-t * 3.2) * 0.85
-    mono = (clack1 + clack2 + sub) * 0.55
-    return np.column_stack([mono, mono])
-
-
-def _cable_snap_boom(rng):
-    n = int(1.35 * SR)
-    t = np.linspace(0, 1.35, n, endpoint=False)
-    creak = (t < 0.35) * np.sin(2 * np.pi * (190 + 140 * t) * t) * (t / 0.35) * 0.25
-    ts = np.maximum(0.0, t - 0.35)
-    whip = (t >= 0.35) * np.exp(-ts * 28.0) * (
-        0.8 * rng.standard_normal(n) + 0.6 * np.sin(2 * np.pi * (980 * np.exp(-ts * 9.0)) * ts)
-    )
-    boom = (t >= 0.35) * np.exp(-ts * 2.8) * np.sin(2 * np.pi * 44.0 * ts) * 0.75
-    mono = (creak + whip + boom) * 0.52
-    return np.column_stack([mono * 1.05, mono * 0.95])
-
-
-def _ice_crack(rng, dur_s=1.1):
-    n = int(dur_s * SR)
-    t = np.linspace(0, dur_s, n, endpoint=False)
-    out = np.zeros(n)
-    for offset, amp in [(0.02, 0.9), (0.14, 0.65), (0.31, 0.8), (0.48, 0.5)]:
-        to = np.maximum(0.0, t - offset)
-        mask = (t >= offset).astype(float)
-        burst = mask * np.exp(-to * 55.0) * rng.standard_normal(n) * amp
-        ping = mask * np.exp(-to * 38.0) * np.sin(2 * np.pi * (1650 - 700 * to) * to) * (amp * 0.5)
-        out += burst + ping
-    rumble = _lp_noise(rng, n, alpha=0.012) * np.exp(-t * 1.8) * 1.6
-    mono = (out + rumble) * 0.48
-    return np.column_stack([mono * 0.92, mono * 1.08])
-
-
-def _heartbeat_pair(rng):
-    n = int(0.75 * SR)
-    t = np.linspace(0, 0.75, n, endpoint=False)
-    lub = np.exp(-t * 18.0) * np.sin(2 * np.pi * 48.0 * t) * 0.85
-    td = np.maximum(0.0, t - 0.24)
-    dub = (t >= 0.24) * np.exp(-td * 22.0) * np.sin(2 * np.pi * 58.0 * td) * 0.65
-    mono = (lub + dub) * 0.60
-    return np.column_stack([mono, mono])
-
-
-def build_sfx_track(seg_info, total_dur):
-    """Bangun track Foley & SFX fisik sepanjang total_dur (TANPA musik)."""
-    rng = np.random.default_rng(20261024)
-    total_n = int(round(total_dur * SR)) + SR
-    buf = np.zeros((total_n, 2), dtype=np.float64)
-
-    # Room tone sangat halus (-40 dB)
-    base_air = _lp_noise(rng, total_n, alpha=0.008) * 0.018
-    buf[:, 0] += base_air
-    buf[:, 1] += _lp_noise(rng, total_n, alpha=0.008) * 0.018
+    def add_stereo(buf_l, buf_r, start_s):
+        i0 = max(0, int(start_s * SR))
+        i1 = min(n_total, i0 + len(buf_l))
+        if i1 > i0:
+            left[i0:i1] += buf_l[:i1 - i0]
+            right[i0:i1] += buf_r[:i1 - i0]
 
     cursor = 0.0
-    for seg in seg_info:
-        d = seg["dur"]
-        split_t = cursor + d * seg["split_r"]
-        kind = seg["sfx"]
-        idx = seg["idx"]
+    for st in stage_list:
+        d = st["dur"]
+        kind = st["sfx"]
+        n = int(d * SR)
+        t = np.linspace(0, d, n, endpoint=False)
 
-        # Transisi whoosh fisik di setiap pergantian shot + pop halus saat ganti beat tengah shot
-        if idx > 1:
-            _add_at(buf, cursor - 0.14, _bp_whoosh(rng, 0.28, pan_dir=(1 if idx % 2 == 0 else -1)) * 0.36)
-        _add_at(buf, split_t - 0.03, _callout_pop(rng) * 0.65)
+        # Transisi lembut antar gambar (paper/mechanical whoosh halus)
+        w_len = min(int(0.14 * SR), n)
+        wt = np.linspace(0, 0.14, w_len, endpoint=False)
+        whoosh = rng.normal(0, 0.035, w_len) * np.sin(np.pi * wt / 0.14)
+        add_stereo(whoosh, whoosh * 0.9, cursor)
 
-        if kind == "hook_clock_blackout":
-            _add_at(buf, cursor + 0.08, _callout_pop(rng) * 0.80)
-            for k in range(6):
-                _add_at(buf, cursor + k * 0.24, _clock_tick(rng, high=(k % 2 == 0)) * 0.85)
-            _add_at(buf, cursor + 1.50, _breaker_blackout(rng) * 0.90)
-            for k in range(6):
-                _add_at(buf, cursor + 2.85 + k * 0.36, _wood_tap(rng) * 0.38)
-
-        elif kind == "whiteboard_tap_photon":
-            _add_at(buf, cursor + 0.25, _wood_tap(rng) * 0.75)
-            _add_at(buf, cursor + 0.45, _wood_tap(rng) * 0.65)
-            _add_at(buf, cursor + 1.40, _bp_whoosh(rng, min(d - 1.5, 3.4), f0=240, f1=880, pan_dir=1) * 0.42)
-            for k in range(6):
-                _add_at(buf, split_t + 0.15 + k * 0.38, _clock_tick(rng, high=(k % 2 == 0)) * 0.48)
-
-        elif kind == "cable_snap_orbit":
-            _add_at(buf, cursor + 2.05, _breaker_blackout(rng) * 0.75)
-            _add_at(buf, split_t + 0.15, _cable_snap_boom(rng) * 0.92)
-            _add_at(buf, split_t + 1.20, _bp_whoosh(rng, max(1.2, d - (split_t - cursor) - 1.2), f0=120, f1=420, pan_dir=-1) * 0.45)
-
-        elif kind == "arctic_wind_fire":
-            wind = _bp_whoosh(rng, d, f0=160, f1=520, pan_dir=1) * 0.46
-            _add_at(buf, cursor, wind)
-            _add_at(buf, cursor + 0.95, _ice_crack(rng, 0.85) * 0.75)
-            for k in range(8):
-                _add_at(buf, split_t + 0.2 + k * 0.26, _clock_tick(rng, high=True) * 0.28)
-
-        elif kind == "underwater_plankton_pop":
-            n_seg = int(d * SR)
-            sub_water = _lp_noise(rng, n_seg, alpha=0.005) * 0.16
-            _add_at(buf, cursor, np.column_stack([sub_water, sub_water]))
-            for k in range(5):
-                _add_at(buf, split_t + 0.20 + k * 0.55, _callout_pop(rng) * 0.50)
-
-        elif kind == "glacier_crack_vent":
-            _add_at(buf, cursor + 0.25, _ice_crack(rng, 1.35) * 0.92)
-            _add_at(buf, split_t + 0.20, _ice_crack(rng, 1.00) * 0.65)
-            _add_at(buf, cursor, _bp_whoosh(rng, d, f0=140, f1=380, pan_dir=-1) * 0.35)
-
-        elif kind == "bunker_steam_growlamp":
-            n_seg = int(d * SR)
-            steam = (_lp_noise(rng, n_seg, alpha=0.14) - _lp_noise(rng, n_seg, alpha=0.03)) * 0.08
-            _add_at(buf, cursor, np.column_stack([steam, steam]))
-            for k in range(4):
-                _add_at(buf, cursor + 0.7 + k * 1.15, _clock_tick(rng, high=False) * 0.55)
-
-        elif kind == "red_giant_boil":
-            n_seg = int(d * SR)
-            t = np.linspace(0, d, n_seg, endpoint=False)
-            roar = _lp_noise(rng, n_seg, alpha=0.009) * np.sin(np.pi * t / d) * 0.32
-            hiss = (_lp_noise(rng, n_seg, alpha=0.18) - _lp_noise(rng, n_seg, alpha=0.04)) * 0.09
-            _add_at(buf, cursor, np.column_stack([roar + hiss, roar * 0.95 + hiss]))
-            for k in range(6):
-                _add_at(buf, split_t + 0.15 + k * 0.42, _callout_pop(rng) * 0.45)
-
-        elif kind == "nebula_heartbeat":
-            _add_at(buf, cursor, _bp_whoosh(rng, d * 0.85, f0=110, f1=290, pan_dir=1) * 0.32)
-            for k in range(4):
-                _add_at(buf, split_t + 0.10 + k * 0.62, _heartbeat_pair(rng) * 0.85)
-
-        elif kind == "stardust_sunny_loop":
-            _add_at(buf, cursor + 0.15, _callout_pop(rng) * 0.75)
-            _add_at(buf, cursor, _bp_whoosh(rng, d * 0.7, f0=150, f1=340, pan_dir=-1) * 0.25)
-            t_start = max(cursor + d - 2.2, cursor + 1.0)
-            k = 0
-            while t_start + k * 0.28 < cursor + d - 0.05:
-                _add_at(buf, t_start + k * 0.28, _clock_tick(rng, high=(k % 2 == 0)) * 0.75)
-                k += 1
+        # Karakteristik suara fisik sesuai gambar
+        noise = rng.normal(0, 1.0, n)
+        if "day" in kind or "rebirth" in kind:
+            # Gemericik air sungai & angin sepoi
+            water = np.convolve(noise, np.ones(18) / 18, mode="same") * 0.045
+            add_stereo(water, water * 0.95, cursor)
+        elif "steam" in kind or "wind" in kind:
+            # Desis uap air mendidih & angin badai
+            hiss = np.convolve(noise, np.ones(8) / 8, mode="same") * 0.075
+            rumble = 0.06 * np.sin(2 * np.pi * 58 * t)
+            add_stereo(hiss + rumble, hiss * 0.9 + rumble, cursor)
+        elif "lava" in kind or "solar" in kind or "venus" in kind:
+            # Gemuruh magma pijar & api Raksasa Merah
+            roar = np.convolve(noise, np.ones(45) / 45, mode="same") * 0.11
+            sub = 0.08 * np.sin(2 * np.pi * 46 * t)
+            add_stereo(roar + sub, roar * 0.92 + sub, cursor)
+        elif "helium" in kind or "alarm" in kind:
+            # Dentuman seismik & dering mekanis bunker
+            boom = 0.12 * np.sin(2 * np.pi * (95 * np.exp(-t * 2.2) + 38) * t) * np.exp(-t * 1.4)
+            add_stereo(boom, boom, cursor)
+        else:
+            # Atmosfer laboratorium/observatorium/air mencair
+            amb = np.convolve(noise, np.ones(30) / 30, mode="same") * 0.055
+            add_stereo(amb, amb * 0.95, cursor)
 
         cursor += d
 
-    buf = buf[: int(round(total_dur * SR))]
-    peak = np.max(np.abs(buf))
-    if peak > 0.92:
-        buf = buf * (0.92 / peak)
-    pcm = np.clip(buf * 32767.0, -32768, 32767).astype(np.int16)
-
-    sfx_path = os.path.join(WORK, "sfx_short02.wav")
-    with wave.open(sfx_path, "wb") as wf:
+    peak = max(np.max(np.abs(left)), np.max(np.abs(right)), 1e-6)
+    stereo = np.stack([left / peak * 0.28, right / peak * 0.28], axis=1)
+    pcm = (stereo * 32767).astype(np.int16)
+    sfx_wav = os.path.join(WORK, "sfx40_master.wav")
+    with wave.open(sfx_wav, "wb") as wf:
         wf.setnchannels(2)
         wf.setsampwidth(2)
         wf.setframerate(SR)
         wf.writeframes(pcm.tobytes())
-    return sfx_path
+    return sfx_wav
 
 
-def _subclip_zoompan(img_path, out_path, dur_s, cam):
-    """Render satu sub-beat (Beat A atau Beat B) dengan warna jernih gaya Mr Sticky (tanpa vignette/noise/fade gelap)."""
-    z0, z1, cx, cy = cam
-    frames = max(int(round(dur_s * FPS)), 2)
-    span = max(frames - 1, 1)
-    z_expr = f"{z0:.4f}+({z1 - z0:.4f})*on/{span}"
-    x_expr = f"clip({cx:.3f}*iw-(iw/zoom/2),0,iw-iw/zoom)"
-    y_expr = f"clip({cy:.3f}*ih-(ih/zoom/2),0,ih-ih/zoom)"
-    fc = (f"[0:v]scale={W*2}:{H*2}:force_original_aspect_ratio=increase,"
-          f"crop={W*2}:{H*2},setsar=1,"
-          f"zoompan=z='{z_expr}':x='{x_expr}':y='{y_expr}':d={frames}:s={W}x{H}:fps={FPS},"
-          f"eq=contrast=1.03:saturation=1.06[v]")
-    run([FF, "-y", "-hide_banner", "-loglevel", "error", "-i", img_path,
-         "-filter_complex", fc, "-map", "[v]", "-r", str(FPS),
-         "-t", f"{dur_s:.3f}", "-frames:v", str(frames),
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
-         "-pix_fmt", "yuv420p", "-an", out_path])
+def render_clip(st):
+    """Render setiap gambar 9:16 dengan kamera lembut (z=1.00..1.05) agar bagian atas & bawah gambar 100% utuh."""
+    idx = st["idx"]
+    d = st["dur"]
+    frames = max(1, int(round(d * FPS)))
+    out_mp4 = os.path.join(WORK, f"clip_{idx:02d}.mp4")
+    move = st["move"]
 
+    if move == "zoom_in":
+        z_expr = f"1.00+0.045*on/{frames}"
+        x_expr = "iw/2-(iw/zoom/2)"
+        y_expr = "ih/2-(ih/zoom/2)"
+    elif move == "zoom_out":
+        z_expr = f"1.045-0.045*on/{frames}"
+        x_expr = "iw/2-(iw/zoom/2)"
+        y_expr = "ih/2-(ih/zoom/2)"
+    elif move == "pan_down":
+        z_expr = "1.04"
+        x_expr = "iw/2-(iw/zoom/2)"
+        y_expr = f"(ih-ih/zoom)*(on/{frames})"
+    else:  # pan_up
+        z_expr = "1.04"
+        x_expr = "iw/2-(iw/zoom/2)"
+        y_expr = f"(ih-ih/zoom)*(1-on/{frames})"
 
-def build_clip(seg):
-    """Render 1 shot yang terdiri dari 2 beat kamera dinamis (Beat A -> Beat B) sesuai narasi."""
-    idx = seg["idx"]
-    d = seg["dur"]
-    total_frames = max(int(round(d * FPS)), 4)
-    frames_a = max(int(round(total_frames * seg["split_r"])), 2)
-    frames_b = max(total_frames - frames_a, 2)
-    dur_a = frames_a / FPS
-    dur_b = frames_b / FPS
-
-    part_a = os.path.join(CLIPS, f"s{idx:02d}_a.mp4")
-    part_b = os.path.join(CLIPS, f"s{idx:02d}_b.mp4")
-    _subclip_zoompan(seg["img"], part_a, dur_a, seg["cam_a"])
-    _subclip_zoompan(seg["img"], part_b, dur_b, seg["cam_b"])
-
-    dst = os.path.join(CLIPS, f"s{idx:02d}.mp4")
-    pair_list = os.path.join(CLIPS, f"s{idx:02d}_pair.txt")
-    with open(pair_list, "w") as f:
-        f.write(f"file '{part_a}'\nfile '{part_b}'\n")
-    run([FF, "-y", "-hide_banner", "-loglevel", "error", "-f", "concat", "-safe", "0",
-         "-i", pair_list, "-c", "copy", dst])
-    return dst
-
-
-def build_thumbnail_and_char_sheets():
-    """Bangun ulang thumbnail Short #2 dan lembar karakter baku dengan Stickman polos berkacamata hitam."""
-    # 1. Thumbnail Short #2 (1080x1920) dari short02_s01.jpg + short02_s08.jpg
-    s01 = Image.open(os.path.join(IMG, "short02_s01.jpg")).convert("RGB").resize((W, H), Image.LANCZOS)
-    draw = ImageDraw.Draw(s01)
-    # Banner judul kuning-hitam kontras tinggi di bagian bawah (aman untuk thumbnail Shorts)
-    font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-    f_big = ImageFont.truetype(font_path, 86)
-    f_sub = ImageFont.truetype(font_path, 52)
-    draw.rounded_rectangle((54, 1500, 1026, 1840), radius=28, fill=(16, 18, 24), outline=(255, 214, 64), width=8)
-    draw.text((540, 1605), "8 MENIT 20 DETIK", font=f_big, fill=(255, 214, 64), anchor="mm")
-    draw.text((540, 1735), "KALAU MATAHARI PADAM", font=f_sub, fill=(255, 255, 255), anchor="mm")
-    thumb_path = os.path.join(OUT, "thumbnail_short_ep02.jpg")
-    s01.save(thumb_path, quality=95)
-
-    # 2. Contoh adegan 9:16 karakter baru (tanpa pakaian, hanya kacamata hitam)
-    os.makedirs(os.path.join(IMG, "char"), exist_ok=True)
-    s02 = Image.open(os.path.join(IMG, "short02_s02.jpg")).convert("RGB").resize((W, H), Image.LANCZOS)
-    s02.save(os.path.join(IMG, "char/karakter-contoh-adegan-9x16.jpg"), quality=94)
-
-    # 3. Model sheet 5 pose dari 5 adegan terbaik karakter polos berkacamata hitam
-    sheet_w, sheet_h = 1800, 1000
-    sheet = Image.new("RGB", (sheet_w, sheet_h), (245, 242, 235))
-    sd = ImageDraw.Draw(sheet)
-    f_title = ImageFont.truetype(font_path, 40)
-    f_lbl = ImageFont.truetype(font_path, 24)
-    sd.text((900, 48), "KARAKTER BAKU — STICKMAN POLOS BERKACAMATA HITAM (GAYA MR STICKY)", font=f_title, fill=(20, 20, 20), anchor="mm")
-    poses = [
-        ("short02_s01.jpg", "1. Santai / Jalan"),
-        ("short02_s02.jpg", "2. Edukasi / Papan Tulis"),
-        ("short02_s03.jpg", "3. Terhempas / Darurat"),
-        ("short02_s04.jpg", "4. Menggigil / Dingin"),
-        ("short02_s08.jpg", "5. Kepanasan Ekstrem"),
-    ]
-    cw, ch = 320, 580
-    for i, (fn, lbl) in enumerate(poses):
-        im = Image.open(os.path.join(IMG, fn)).convert("RGB").resize((cw, ch), Image.LANCZOS)
-        x0 = 50 + i * 345
-        y0 = 110
-        sheet.paste(im, (x0, y0))
-        sd.rectangle((x0, y0, x0 + cw, y0 + ch), outline=(20, 20, 20), width=4)
-        sd.text((x0 + cw // 2, y0 + ch + 32), lbl, font=f_lbl, fill=(20, 20, 20), anchor="mm")
-    sd.text((900, 820), "Aturan mutlak: Kepala bulat putih bersih + kacamata hitam kotak. Badan/tangan/kaki murni garis hitam TANPA pakaian.", font=f_lbl, fill=(40, 40, 40), anchor="mm")
-    sheet.save(os.path.join(IMG, "char/character-sheet-v2.jpg"), quality=94)
+    vf = (
+        f"scale=2160:3840:flags=lanczos,"
+        f"zoompan=z='{z_expr}':x='{x_expr}':y='{y_expr}':d={frames}:s=1080x1920:fps={FPS},"
+        f"format=yuv420p"
+    )
+    run([
+        FF, "-y", "-hide_banner", "-loglevel", "error",
+        "-i", st["img"],
+        "-vf", vf,
+        "-frames:v", str(frames),
+        "-t", f"{d:.4f}",
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
+        "-pix_fmt", "yuv420p",
+        out_mp4
+    ])
+    return out_mp4
 
 
 def main():
-    os.makedirs(CLIPS, exist_ok=True)
-    os.makedirs(OUT, exist_ok=True)
+    print("1/5 Membangun Thumbnail 9:16 ('output/thumbnail_short_ep02.jpg')...")
+    build_thumbnail()
+    print("2/5 Menyiapkan 40 gambar mahakarya unik ('batch1_01..batch4_10')...")
+    stage_list = prepare_40_frames()
+    print("3/5 Merapikan 12 segmen VO kronologis & membagi durasi ke 40 gambar...")
+    vo_master, total_dur = build_vo_and_assign_durations(stage_list)
+    print(f"    Total durasi 40 gambar: {total_dur:.2f}s ({int(total_dur//60)}:{total_dur%60:05.2f}, rata-rata {total_dur/40:.2f}s/gambar)")
+    print("4/5 Menyintesis track Foley SFX fisik 40 tahap & merender 40 klip video...")
+    sfx_master = synth_sfx_40(stage_list, total_dur)
 
-    print("1/5 Memotong & menyusun 10 segmen Voiceover (< 60 detik)...")
-    seg_info = build_vo_segments()
-    total_dur = sum(s["dur"] for s in seg_info)
-    print(f"    Total durasi 10 shot: {total_dur:.2f}s (batas YouTube Shorts: 60.00s)")
-    assert total_dur < 59.5, f"Durasi terlalu panjang ({total_dur:.2f}s >= 59.5s)!"
+    clips = []
+    for st in stage_list:
+        c = render_clip(st)
+        clips.append(c)
+        if st["idx"] % 10 == 0 or st["idx"] == 1:
+            print(f"    [{st['idx']:02d}/40] {st['src']} ({st['dur']:.2f}s) - {st['desc']}")
 
-    vo_list = os.path.join(WORK, "vo_list.txt")
-    with open(vo_list, "w") as f:
-        for s in seg_info:
-            f.write(f"file '{s['vo']}'\n")
-    vo_concat = os.path.join(WORK, "vo_master.wav")
-    run([FF, "-y", "-hide_banner", "-loglevel", "error", "-f", "concat", "-safe", "0",
-         "-i", vo_list, "-ar", str(SR), "-ac", "2", "-c:a", "pcm_s16le", vo_concat])
-
-    print("2/5 Menyintesis efek suara fisik & foley multi-lapis gaya Mr Sticky (TANPA musik)...")
-    sfx_wav = build_sfx_track(seg_info, total_dur)
-
-    print("3/5 Merender 10 shot (20 beat kamera dinamis, TANPA subtitle, warna cerah bersih)...")
-    clip_paths = []
-    for s in seg_info:
-        print(f"    [{s['idx']:02d}/10] {os.path.basename(s['img'])}  {s['dur']:5.2f}s  sfx={s['sfx']}")
-        clip_paths.append(build_clip(s))
-
-    vlist = os.path.join(WORK, "v_list.txt")
+    vlist = os.path.join(WORK, "v40_list.txt")
     with open(vlist, "w") as f:
-        for cp in clip_paths:
-            f.write(f"file '{cp}'\n")
-    vonly = os.path.join(WORK, "video_only.mp4")
+        for c in clips:
+            f.write(f"file '{c}'\n")
+    v_concat = os.path.join(WORK, "v40_concat.mp4")
     run([FF, "-y", "-hide_banner", "-loglevel", "error", "-f", "concat", "-safe", "0",
-         "-i", vlist, "-c", "copy", vonly])
+         "-i", vlist, "-c", "copy", v_concat])
 
-    print("4/5 Mastering audio (VO -14 LUFS + Foley SFX, 0% musik) & muxing MP4...")
-    final_mp4 = os.path.join(OUT, "STICKMAN_short-02_kalau-matahari-mati_9x16.mp4")
-    af = (f"[1:a]highpass=f=80,lowpass=f=14500,"
-          f"loudnorm=I=-14:TP=-1.5:LRA=9[vo];"
-          f"[2:a]volume=0.55[sfx];"
-          f"[vo][sfx]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,"
-          f"alimiter=limit=0.95[a]")
-    run([FF, "-y", "-hide_banner", "-loglevel", "error",
-         "-i", vonly, "-i", vo_concat, "-i", sfx_wav,
-         "-filter_complex", af, "-map", "0:v", "-map", "[a]",
-         "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", str(SR),
-         "-t", f"{total_dur:.3f}", "-movflags", "+faststart", final_mp4])
-
-    print("5/5 Memperbarui thumbnail Short #2 & character sheet baku...")
-    build_thumbnail_and_char_sheets()
-
-    final_d = dur(final_mp4)
-    print(f"\nSELESAI: {final_mp4} ({final_d:.2f}s)")
+    print("5/5 Mastering audio (VO -14 LUFS + Foley SFX 40 tahap, 0% musik, 0% subtitle) & muxing MP4...")
+    fc = (
+        "[1:a]loudnorm=I=-14:TP=-1.5:LRA=9,volume=1.05[vo];"
+        "[2:a]volume=0.52[sfx];"
+        "[vo][sfx]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]"
+    )
+    run([
+        FF, "-y", "-hide_banner", "-loglevel", "error",
+        "-i", v_concat,
+        "-i", vo_master,
+        "-i", sfx_master,
+        "-filter_complex", fc,
+        "-map", "0:v:0", "-map", "[aout]",
+        "-c:v", "copy",
+        "-c:a", "aac", "-b:a", "192k", "-ar", str(SR),
+        "-t", f"{total_dur:.3f}",
+        "-movflags", "+faststart",
+        OUT_VIDEO
+    ])
+    final_d = dur(OUT_VIDEO)
+    print(f"\nSELESAI: {OUT_VIDEO} ({final_d:.2f}s / {int(final_d//60)}:{final_d%60:05.2f}, 40 gambar unik)")
 
 
 if __name__ == "__main__":
