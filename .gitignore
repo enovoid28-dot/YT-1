@@ -1,12 +1,7 @@
-# gambar & audio mentah tinggal di Google Drive (bukan di GitHub)
-assets/images/
-assets/audio/*.wav
-assets/audio/*.mp3
+output/
 work/
-*.pyc
 __pycache__/
-google_drive/
-output/*.mp4
-output/*.jpg
+*.pyc
 assets/audio/_concat.txt
 assets/audio/_gap.wav
+assets/audio/narasi*.wav
