@@ -46,3 +46,10 @@ python3 pipeline/render.py --preview 3   # uji cepat 3 klip
   https://drive.google.com/file/d/1DDthPU8TKCVGB-d-3fB_GIDfZPamX_FE/view
 - Thumbnail: https://drive.google.com/file/d/102mjBvapZ6ElnJBF6rkPIWtHBFykRVX_/view
 - Judul/deskripsi/tag: folder 03 (Google Doc)
+
+## Paket naskah & caption (tanpa musik)
+- `script/00-FORMAT-BAKU-NASKAH.md` — aturan wajib semua episode
+  (cold open, intro, 4-5 bab, titik balik, outro, end card; aturan caption; desain suara)
+- `script/01-NASKAH-DI-MANA-SEMUANYA.md` — naskah utuh EP01 (8 menit) + versi Short 55 detik
+- `pipeline/caption_style.py` — generator contoh caption 9:16 & 16:9
+- Drive: folder `07 - Paket Naskah dan Caption`
