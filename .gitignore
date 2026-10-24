@@ -6,3 +6,7 @@ work/
 *.pyc
 __pycache__/
 google_drive/
+output/*.mp4
+output/*.jpg
+assets/audio/_concat.txt
+assets/audio/_gap.wav
