@@ -66,7 +66,8 @@ Model sheet: `assets/images/char/character-sheet-v2.jpg`
 - Audio: ep02_coldopen.mp3, ep02_intro.mp3, ep02_bab1.mp3
 
 ## Aset EP02 (karakter baku "Si Profesional")
-- 18 dari 45 shot selesai: s01-s04, s09, s10, s17, s21, s28, s30, s32, s34, s37, s39, s41, s43, s44, s45
+- 28 dari 45 shot selesai: s01-s05, s07-s18, s21, s28, s30, s32, s34, s37, s39, s41, s43, s44, s45
+- Perlu regenerasi: s16 (ada artefak kotak abu-abu di kiri karakter)
 - 8 kartu transisi final (programatik, bukan AI): `assets/cards/k0..k7.jpg`
   generator: `pipeline/cards.py`
-- Sisa: s05-s08, s11-s16, s18-s20, s22-s27, s29, s31, s33, s35, s36, s38, s40, s42
+- Sisa: s06, s19, s20, s22-s27, s29, s31, s33, s35, s36, s38, s40, s42 (+ ulang s16)
