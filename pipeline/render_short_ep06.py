@@ -1,133 +1,171 @@
 #!/usr/bin/env python3
 """
-60fps 1080x1920 (9:16) Renderer for Video Short #06 (@SeorangSains):
-'Apa yang Terjadi Saat Satu Tetes Bisa Ular Masuk ke Pembuluh Darahmu? (Hemotoksin)'
-- Format: 1080x1920 @ 60.00 fps (9:16 YouTube Shorts Full HD, 100% True 1:1 Un-Stretched Proportions)
-- Duration: 01:18.37 (78.37s, 9 scenes) — Standard YouTube Shorts Pacing
-- Audio: Pure Master VO (output/VO_Master_Short06_09_Adegan_9x16.mp3) — NO BACKGROUND MUSIC
-- Visuals:
-  * 9 custom realistic-situation & anatomical 9:16 scenes (short06_s01.jpg .. short06_s09.jpg)
-  * Calm 1.2% micro-zoom + smooth 0.25s (15-frame) cross-dissolves at exact silence midpoints
-  * NO top HUD / NO subtitles (100% clean full-frame visuals)
+Render Pipeline for Video Short #06 (30 Scenes, 3 Stages, 9:16 1080x1920 @ 60fps):
+"Apa yang Terjadi Saat Satu Tetes Bisa Ular Masuk ke Pembuluh Darahmu? (Hemotoksin)"
+- 30 scenes across Pembuka Maskot (#01-#03), Tahap 1 (#04-#10), Tahap 2 (#11-#20), Tahap 3 (#21-#30)
+- 100% True 1:1 Un-Stretched Aspect Ratio (ImageOps.fit 1080x1920)
+- NO Top HUD, NO BGM, NO Subtitles
+- Calm 1.2% micro-zoom & smooth 0.25s cross-dissolve transitions
 """
-
-import json
 import os
+import json
+import zipfile
 import subprocess
-import time
-import imageio_ffmpeg
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps, ImageDraw, ImageFilter
+import imageio_ffmpeg
 
 W, H = 1080, 1920
 FPS = 60
-CROSSFADE_FRAMES = 15  # 0.25s smooth cross-dissolve
+
+ALL_30_SCENES = (
+    [f"assets/images/short06_intro_{i:02d}.jpg" for i in range(1, 4)] +
+    [f"assets/images/short06_t1_{i:02d}.jpg" for i in range(1, 8)] +
+    [f"assets/images/short06_t2_{i:02d}.jpg" for i in range(1, 11)] +
+    [f"assets/images/short06_t3_{i:02d}.jpg" for i in range(1, 10)] +
+    ["assets/images/short06_outro_01.jpg"]
+)
 
 
-def load_zoom_lut(img_path: str):
-    im = Image.open(img_path).convert("RGB")
-    up_w, up_h = 1108, 1970  # +2.5% uniform margin for calm 1.2% micro-zoom/pan
-    im_up = im.resize((up_w, up_h), Image.Resampling.LANCZOS)
-    return np.array(im_up, dtype=np.uint8)
+def normalize_and_clean_all_30_scenes():
+    # Clean tiny background poster smudge in short06_outro_01.jpg before fitting
+    outro_p = "assets/images/short06_outro_01.jpg"
+    if os.path.exists(outro_p):
+        im = Image.open(outro_p).convert("RGB")
+        im = ImageOps.fit(im, (W, H), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+        draw = ImageDraw.Draw(im)
+        # Cover the tiny blurry text strip at top of background anatomy poster
+        draw.rectangle([435, 345, 558, 390], fill=(224, 235, 241))
+        im.save(outro_p, quality=96)
+
+    for p in ALL_30_SCENES:
+        assert os.path.exists(p), f"Missing scene file: {p}"
+        im = Image.open(p).convert("RGB")
+        if im.size != (W, H):
+            im = ImageOps.fit(im, (W, H), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+            im.save(p, quality=96)
+    print("Verified and normalized all 30 scenes to 1080x1920 (9:16 un-stretched 1:1).")
 
 
-def crop_micro_zoom(up_arr: np.ndarray, progress: float, scene_num: int) -> np.ndarray:
-    max_dx = 1108 - W  # 28 px
-    max_dy = 1970 - H  # 50 px
-    if scene_num % 2 == 0:
-        x0 = int(round(max_dx * progress))
-        y0 = int(round(max_dy * (0.2 + 0.6 * progress)))
-    else:
-        x0 = int(round(max_dx * (1.0 - progress)))
-        y0 = int(round(max_dy * (0.8 - 0.6 * progress)))
-    return up_arr[y0:y0 + H, x0:x0 + W]
+def build_batches_and_previews():
+    os.makedirs("output", exist_ok=True)
+    batches = [
+        ("Batch1_01_to_10", "01_to_10", ALL_30_SCENES[0:10]),
+        ("Batch2_11_to_20", "11_to_20", ALL_30_SCENES[10:20]),
+        ("Batch3_21_to_30", "21_to_30", ALL_30_SCENES[20:30]),
+    ]
+    cw, ch = 270, 480
+    for preview_tag, zip_tag, scene_list in batches:
+        zip_path = f"output/BACKUP_Short06_Scenes_{zip_tag}.zip"
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            for p in scene_list:
+                zf.write(p, os.path.basename(p))
+        sheet = Image.new("RGB", (cw * 5, ch * 2), (255, 255, 255))
+        for idx, p in enumerate(scene_list):
+            im = Image.open(p).convert("RGB").resize((cw, ch), Image.Resampling.LANCZOS)
+            r, c = idx // 5, idx % 5
+            sheet.paste(im, (c * cw, r * ch))
+        preview_path = f"output/PREVIEW_Short06_{preview_tag}_9x16.jpg"
+        sheet.save(preview_path, quality=93)
+        print("Saved:", zip_path, "and", preview_path)
 
 
-def main():
-    t0 = time.time()
-    with open("output/short06_timeline_09_scenes.json", "r", encoding="utf-8") as f:
+def render_video():
+    with open("output/short06_timeline_30_scenes.json", "r", encoding="utf-8") as f:
         timeline = json.load(f)
+    assert len(timeline) == 30, f"Expected 30 scenes in timeline, got {len(timeline)}"
 
-    assert len(timeline) == 9, f"Expected 9 scenes, got {len(timeline)}"
-    total_sec = timeline[-1]["end"]
-    total_frames = int(round(total_sec * FPS))
-    print(f"Rendering Clean Video Short #06 (No Top HUD, No BGM): {len(timeline)} scenes, {total_sec:.2f}s ({total_frames} frames @ {FPS}fps)")
+    total_dur = timeline[-1]["end"]
+    total_frames = int(round(total_dur * FPS))
+    print(f"Rendering 30-Scene Short #06: {total_dur:.2f}s ({total_frames} frames @ {FPS}fps)...")
 
-    out_mp4 = "output/STICKMAN_short-06_satu-tetes-bisa-ular-membekukan-darah_9x16.mp4"
-    vo_path = "output/VO_Master_Short06_09_Adegan_9x16.mp3"
+    # Pre-load all 30 images and 1.2% zoomed versions for super-fast numpy interpolation
+    base_frames = []
+    zoom_frames = []
+    zw, zh = int(W * 1.012), int(H * 1.012)
+    x0 = (zw - W) // 2
+    y0 = (zh - H) // 2
+
+    for item in timeline:
+        im = Image.open(item["image"]).convert("RGB")
+        if im.size != (W, H):
+            im = ImageOps.fit(im, (W, H), method=Image.Resampling.LANCZOS)
+        base_frames.append(np.asarray(im, dtype=np.uint8))
+        im_z = im.resize((zw, zh), Image.Resampling.BICUBIC).crop((x0, y0, x0 + W, y0 + H))
+        zoom_frames.append(np.asarray(im_z, dtype=np.uint8))
+
+    out_mp4 = "output/Short06_Satu_Tetes_Bisa_Ular_Membekukan_Darah_9x16.mp4"
+    vo_mp3 = "output/VO_Master_Short06_30_Adegan_9x16.mp3"
     ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
 
     cmd = [
         ffmpeg_exe, "-y",
-        "-f", "rawvideo",
-        "-vcodec", "rawvideo",
-        "-pix_fmt", "rgb24",
-        "-s", f"{W}x{H}",
-        "-r", str(FPS),
+        "-f", "rawvideo", "-vcodec", "rawvideo",
+        "-s", f"{W}x{H}", "-pix_fmt", "rgb24", "-r", str(FPS),
         "-i", "-",
-        "-i", vo_path,
-        "-map", "0:v:0",
-        "-map", "1:a:0",
-        "-c:v", "libx264",
-        "-preset", "veryfast",
-        "-tune", "animation",
-        "-crf", "23",
-        "-maxrate", "1200k",
-        "-bufsize", "2400k",
+        "-i", vo_mp3,
+        "-map", "0:v:0", "-map", "1:a:0",
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", "18",
         "-pix_fmt", "yuv420p",
-        "-c:a", "aac",
-        "-b:a", "192k",
+        "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
         "-movflags", "+faststart",
         "-shortest",
-        out_mp4,
+        out_mp4
     ]
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 
-    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.DEVNULL)
+    # Precompute scene index per frame
+    starts = [item["start"] for item in timeline]
+    ends = [item["end"] for item in timeline]
+    fade_sec = 0.25
 
-    scene_frames = []
-    for i, item in enumerate(timeline):
-        f_start = int(round(item["start"] * FPS))
-        f_end = int(round(item["end"] * FPS)) if i < len(timeline) - 1 else total_frames
-        scene_frames.append((i + 1, item["image"], f_start, f_end))
+    def get_scene_frame(sc_idx, local_prog):
+        # Smooth ease-in-out between base_frames[sc_idx] and zoom_frames[sc_idx]
+        s = 0.5 - 0.5 * np.cos(np.pi * np.clip(local_prog, 0.0, 1.0))
+        if sc_idx % 2 == 1:
+            s = 1.0 - s
+        # Quantize s to 16 steps for fast blending
+        b = base_frames[sc_idx]
+        z = zoom_frames[sc_idx]
+        w_z = int(round(s * 256))
+        if w_z <= 0:
+            return b
+        if w_z >= 256:
+            return z
+        return ((b.astype(np.uint16) * (256 - w_z) + z.astype(np.uint16) * w_z) >> 8).astype(np.uint8)
 
-    curr_up = load_zoom_lut(scene_frames[0][1])
-    next_up = load_zoom_lut(scene_frames[1][1])
+    sc_idx = 0
+    for f_idx in range(total_frames):
+        t = f_idx / FPS
+        while sc_idx < 29 and t >= ends[sc_idx]:
+            sc_idx += 1
+        sc_start = starts[sc_idx]
+        sc_end = ends[sc_idx]
+        sc_dur = max(0.1, sc_end - sc_start)
+        prog = (t - sc_start) / sc_dur
 
-    frames_written = 0
-    for idx, (s_num, img_path, f_start, f_end) in enumerate(scene_frames):
-        n_f = max(1, f_end - f_start)
+        frame = get_scene_frame(sc_idx, prog)
 
-        for local_f in range(n_f):
-            prog = local_f / max(1, n_f - 1)
-            frame = crop_micro_zoom(curr_up, prog, s_num)
+        # Smooth 0.25s cross-dissolve at scene boundary
+        if sc_idx > 0 and (t - sc_start) < fade_sec:
+            alpha = (t - sc_start) / fade_sec
+            alpha_s = 0.5 - 0.5 * np.cos(np.pi * np.clip(alpha, 0.0, 1.0))
+            w_cur = int(round(alpha_s * 256))
+            prev_frame = get_scene_frame(sc_idx - 1, 1.0)
+            frame = ((prev_frame.astype(np.uint16) * (256 - w_cur) + frame.astype(np.uint16) * w_cur) >> 8).astype(np.uint8)
 
-            rem = (n_f - 1) - local_f
-            if rem < CROSSFADE_FRAMES and idx + 1 < len(scene_frames):
-                alpha = (CROSSFADE_FRAMES - rem) / float(CROSSFADE_FRAMES)
-                alpha = alpha * alpha * (3.0 - 2.0 * alpha)
-                next_frame = crop_micro_zoom(next_up, 0.0, s_num + 1)
-                frame = (frame.astype(np.float32) * (1.0 - alpha) + next_frame.astype(np.float32) * alpha).astype(np.uint8)
-            else:
-                frame = np.ascontiguousarray(frame)
-
-            proc.stdin.write(frame.tobytes())
-            frames_written += 1
-
-        if idx + 1 < len(scene_frames):
-            curr_up = next_up
-            if idx + 2 < len(scene_frames):
-                next_up = load_zoom_lut(scene_frames[idx + 2][1])
-
-        if (idx + 1) % 3 == 0 or (idx + 1) == len(scene_frames):
-            el = time.time() - t0
-            print(f"  Rendered {idx + 1}/9 scenes ({frames_written}/{total_frames} frames, {frames_written / max(0.1, el):.1f} fps, {el:.1f}s)")
+        proc.stdin.write(frame.tobytes())
 
     proc.stdin.close()
-    ret = proc.wait()
-    assert ret == 0, f"FFmpeg exited with {ret}"
+    stderr_out = proc.stderr.read().decode("utf-8", errors="ignore")
+    proc.wait()
+    if proc.returncode != 0:
+        raise RuntimeError(f"FFmpeg failed: {stderr_out[-600:]}")
     sz_mb = os.path.getsize(out_mp4) / (1024 * 1024)
-    print(f"SUCCESS: {out_mp4} ({sz_mb:.2f} MB) in {time.time() - t0:.1f}s")
+    print(f"SUCCESS: Rendered {out_mp4} ({sz_mb:.2f} MB, {total_dur:.2f}s @ 60fps)")
 
 
 if __name__ == "__main__":
-    main()
+    normalize_and_clean_all_30_scenes()
+    build_batches_and_previews()
+    render_video()
