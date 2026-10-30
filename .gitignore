@@ -7,3 +7,11 @@
 *.wav
 *.zip
 .venv/
+
+# Never commit local secrets or environment files.
+.env
+.env.*
+*.key
+*credentials*.json
+secrets/
+__pycache__/
