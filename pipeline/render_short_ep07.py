@@ -63,28 +63,16 @@ def build_batches_and_previews():
         print("Saved:", zip_path, "and", preview_path)
 
 
-def build_scene_zoom_lut(img_path):
+def load_sharp_native_scene(img_path):
     """
-    Build 24 pure Lanczos-resampled frames from 1.000x to 1.012x zoom with UnsharpMask.
-    Each step is a crisp, standalone Lanczos-resampled frame (NO blending between steps!).
+    Load 1080x1920 scene at 1:1 native pixel resolution with crisp UnsharpMask.
+    Zero sub-pixel zoom resampling and zero ghost-blending so 2D outlines stay 100% razor-sharp!
     """
     im = Image.open(img_path).convert("RGB")
     if im.size != (W, H):
         im = ImageOps.fit(im, (W, H), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
-    lut = []
-    for k in range(ZOOM_STEPS):
-        scale = 1.0 + 0.012 * (k / max(1, ZOOM_STEPS - 1))
-        if k == 0:
-            step_im = im
-        else:
-            zw = int(round(W * scale))
-            zh = int(round(H * scale))
-            x0 = (zw - W) // 2
-            y0 = (zh - H) // 2
-            step_im = im.resize((zw, zh), Image.Resampling.LANCZOS).crop((x0, y0, x0 + W, y0 + H))
-            step_im = step_im.filter(ImageFilter.UnsharpMask(radius=1.0, percent=110, threshold=2))
-        lut.append(np.asarray(step_im, dtype=np.uint8))
-    return lut
+    im = im.filter(ImageFilter.UnsharpMask(radius=1.2, percent=115, threshold=2))
+    return np.asarray(im, dtype=np.uint8)
 
 
 def render_video():
@@ -94,7 +82,7 @@ def render_video():
 
     total_dur = timeline[-1]["end"]
     total_frames = int(round(total_dur * FPS))
-    print(f"Rendering Razor-Sharp 30-Scene Short #07 v2: {total_dur:.2f}s ({total_frames} frames @ {FPS}fps)...")
+    print(f"Rendering 1:1 Pixel-Exact Razor-Sharp 30-Scene Short #07 v2: {total_dur:.2f}s ({total_frames} frames @ {FPS}fps)...")
 
     out_mp4 = "output/Short07_v2_Amuba_Pemakan_Otak_Lewat_Hidung_9x16.mp4"
     vo_mp3 = "output/VO_Master_Short07_30_Adegan_9x16.mp3"
@@ -107,7 +95,7 @@ def render_video():
         "-i", "-",
         "-i", vo_mp3,
         "-map", "0:v:0", "-map", "1:a:0",
-        "-c:v", "libx264", "-preset", "faster", "-crf", "15", "-tune", "animation",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "14", "-tune", "animation",
         "-pix_fmt", "yuv420p",
         "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
         "-movflags", "+faststart",
@@ -118,18 +106,12 @@ def render_video():
 
     starts = [item["start"] for item in timeline]
     ends = [item["end"] for item in timeline]
-    fade_sec = 0.18
+    fade_sec = 0.14
 
     cur_sc_idx = -1
-    cur_lut = None
-    prev_last_frame = None
-
-    def get_frame_from_lut(lut, sc_idx, local_prog):
-        s = 0.5 - 0.5 * np.cos(np.pi * np.clip(local_prog, 0.0, 1.0))
-        if sc_idx % 2 == 1:
-            s = 1.0 - s
-        k = int(round(s * (ZOOM_STEPS - 1)))
-        return lut[max(0, min(ZOOM_STEPS - 1, k))]
+    cur_frame = None
+    prev_frame = None
+    cur_bytes = None
 
     sc_idx = 0
     for f_idx in range(total_frames):
@@ -137,25 +119,21 @@ def render_video():
         while sc_idx < 29 and t >= ends[sc_idx]:
             sc_idx += 1
         if sc_idx != cur_sc_idx:
-            if cur_lut is not None:
-                prev_last_frame = get_frame_from_lut(cur_lut, cur_sc_idx, 1.0)
-            cur_lut = build_scene_zoom_lut(timeline[sc_idx]["image"])
+            if cur_frame is not None:
+                prev_frame = cur_frame
+            cur_frame = load_sharp_native_scene(timeline[sc_idx]["image"])
+            cur_bytes = cur_frame.tobytes()
             cur_sc_idx = sc_idx
 
         sc_start = starts[sc_idx]
-        sc_end = ends[sc_idx]
-        sc_dur = max(0.1, sc_end - sc_start)
-        prog = (t - sc_start) / sc_dur
-
-        frame = get_frame_from_lut(cur_lut, sc_idx, prog)
-
-        if sc_idx > 0 and prev_last_frame is not None and (t - sc_start) < fade_sec:
+        if sc_idx > 0 and prev_frame is not None and (t - sc_start) < fade_sec:
             alpha = (t - sc_start) / fade_sec
             alpha_s = 0.5 - 0.5 * np.cos(np.pi * np.clip(alpha, 0.0, 1.0))
             w_cur = int(round(alpha_s * 256))
-            frame = ((prev_last_frame.astype(np.uint16) * (256 - w_cur) + frame.astype(np.uint16) * w_cur) >> 8).astype(np.uint8)
-
-        proc.stdin.write(frame.tobytes())
+            blended = ((prev_frame.astype(np.uint16) * (256 - w_cur) + cur_frame.astype(np.uint16) * w_cur) >> 8).astype(np.uint8)
+            proc.stdin.write(blended.tobytes())
+        else:
+            proc.stdin.write(cur_bytes)
 
     proc.stdin.close()
     stderr_out = proc.stderr.read().decode("utf-8", errors="ignore")
