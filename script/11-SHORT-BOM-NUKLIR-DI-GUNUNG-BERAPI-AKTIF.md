@@ -1,55 +1,84 @@
-# NASKAH & STORYBOARD 30 ADEGAN (3 TAHAP) — VIDEO SHORT #08 (`9:16` 1080p 60FPS, TAJAM / ANTI-BLUR, VO JERNIH PSYCHOACOUSTIC, TANPA ELEMEN ATAS/HUD & TANPA MUSIK)
-## Judul Video Short #08: **"Apa yang Terjadi Jika Bom Nuklir Dijatuhkan ke Gunung Berapi Aktif?"**
-
-- **Channel**: `@SeorangSains`
-- **Benchmark Riset Topik**: *Dropping A Nuke In A Volcano* — **55 Juta Views** di *Zack D. Films*.
-- **Format Video**: YouTube Shorts Vertikal **9:16 (`1080×1920`, Full HD 1080p @ 60.00 fps)** dengan rasio proporsional 1:1 (*1:1 Pixel-Exact Native Resolution* + *UnsharpMask*, `-crf 14 -tune animation`, **100% tajam dan bebas blur**).
-- **Struktur Visual**: **30 Adegan Dinamis Murni AI Native dengan Pembagian 3 Tahap Ilmiah (`Pembuka Maskot` → `Tahap 1: Jatuhnya Bom ke Kawah Lava 1.200°C & Risiko Meleleh Sebelum Meledak` → `Tahap 2: Detonasi di Dapur Magma, Bola Api Plasma & Gelombang Kejut Seismik` → `Tahap 3: Lontaran Magma Radioaktif ke Stratosfer, Hujan Abu Nuklir & Musim Dingin Vulkanik`)**.
-- **Audio**: **100% Murni Master Voiceover Jernih (`VO_Master_Short08_30_Adegan_9x16.mp3`, `voice-00`, Disintesis per 5 Kalimat Pendek + *Zero-Phase Psychoacoustic Vocal Clarity Enhancer* `vo_human_ear_enhancer.py` sehingga bebas *vocal fry* / bebas suara mendengkur, Kecepatan Alami `1.000x` & Tanpa Musik Latar / No BGM)**.
-- **Thumbnail (`THUMBNAIL_Short08_Bom_Nuklir_Gunung_Berapi_9x16.jpg`)**: **100% Native AI Illustration di atas latar belakang putih polos murni (`#FFFFFF`)**, **TANPA tipografi/teks dan TANPA elemen tambahan**, menampilkan karakter Stickman 2D (`kurus` satu garis hitam tipis, tangan putih) & penampang gunung berapi aktif dengan hulu ledak nuklir menuju dapur magma sesuai konteks judul.
+# NASKAH & STORYBOARD VIDEO SHORT #08 (9:16 VERTICAL — 30 ADEGAN, 3 TAHAP URUT & REALISTIS)
+**Channel:** `@SeorangSains`
+**Judul Utama:** Apa yang Terjadi Jika Bom Nuklir Dijatuhkan ke Gunung Berapi Aktif?
+**Benchmark Referensi:** *Dropping A Nuke In A Volcano* (55 Juta Views) + Fisika Vulkanologi USGS & Nuklir
+**Format Visual:** `1080x1920` (9:16 Full-Bleed Vertical), `60.00 fps`, 1:1 Pixel-Exact Anti-Blur (`UnsharpMask`), Tanpa HUD Atas, Tanpa Musik (No BGM), Tanpa Subtitle
+**Gaya Visual:** Semi-Realistis 2D Kartun (*Grounded 2D Scientific Animation* — pencahayaan, tekstur batuan, kawah, asap, dan fisika ledakan yang logis, urut, dan realistis, bukan AI slop), dengan karakter Stickman khas `@SeorangSains` (kepala bulat putih bersih bergaris tepi hitam tegas, badan/lengan/kaki 100% garis kawat hitam tipis tunggal `kurus` tanpa baju dan tanpa tangan berdaging, telapak tangan kartun putih; kacamata hitam detail hanya untuk maskot utama `@SeorangSains`).
 
 ---
 
-## DAFTAR LENGKAP 30 ADEGAN & KALIMAT VOICEOVER (`#01` – `#30`)
+## STRUKTUR 30 ADEGAN KRONOLOGIS (URUT DETIK DEMI DETIK & REALISTIS)
 
-### PEMBUKA MASKOT `@SeorangSains` & PERTANYAAN ILMIAH (Adegan 01–03)
+### PEMBUKA — MASKOT `@SeorangSains` (`Adegan #01–#03`)
+1. **Adegan #01 (`assets/images/short08_intro_01.jpg`)**:
+   - **VO:** "Pernahkah kamu membayangkan apa jadinya jika bom nuklir dijatuhkan ke kawah gunung berapi aktif?"
+2. **Adegan #02 (`assets/images/short08_intro_02.jpg`)**:
+   - **VO:** "Banyak film menampilkan bom itu langsung masuk ke perut gunung, padahal itu mustahil terjadi."
+3. **Adegan #03 (`assets/images/short08_intro_03.jpg`)**:
+   - **VO:** "Bersama Seorang Sains, mari kita urutkan kejadian nyatanya dari langit hingga ke puncak kawahnya!"
 
-1. **`short08_intro_01.jpg`** — *"Pernahkah kamu membayangkan apa yang terjadi jika bom nuklir dijatuhkan ke kawah gunung berapi aktif?"*
-2. **`short08_intro_02.jpg`** — *"Banyak orang mengira ledakannya bisa menghentikan letusan gunung berapi, padahal kenyataan ilmiahnya justru sebaliknya."*
-3. **`short08_intro_03.jpg`** — *"Simulasi fisika dan geologi dari skenario ekstrem ini terbagi menjadi tiga tahapan utama."*
+---
 
-### TAHAP 1: DETIK PERTAMA (`JATUHNYA BOM KE KAWAH LAVA 1.200°C & RISIKO MELELEH SEBELUM MELEDAK`) (Adegan 04–10)
+### TAHAP 1: JATUHNYA BOM DARI LANGIT KE ATAS KAWAH & MENGAPA BOM TIDAK BISA TURUN KE PERUT GUNUNG (`Adegan #04–#10`)
+4. **Adegan #04 (`assets/images/short08_t1_01.jpg`)**:
+   - **VO:** "Tahap pertama dimulai saat pesawat pembom melepaskan bom nuklir tepat di atas gunung berapi."
+5. **Adegan #05 (`assets/images/short08_t1_02.jpg`)**:
+   - **VO:** "Bom itu meluncur turun membelah udara menuju mulut kawah gunung berapi yang berasap."
+6. **Adegan #06 (`assets/images/short08_t1_03.jpg`)**:
+   - **VO:** "Dari pos lereng gunung, peneliti memantau bom yang melesat mendekati danau lava di kawah puncak."
+7. **Adegan #07 (`assets/images/short08_t1_04.jpg`)**:
+   - **VO:** "Saat menghantam kawah atas, bom tidak bisa tenggelam cepat karena lava tiga kali lebih padat dari air."
+8. **Adegan #08 (`assets/images/short08_t1_05.jpg`)**:
+   - **VO:** "Bom nuklir itu justru tertahan mengapung di permukaan danau lava bersuhu seribu dua ratus derajat."
+9. **Adegan #09 (`assets/images/short08_t1_06.jpg`)**:
+   - **VO:** "Dalam hitungan detik, panas lava melelehkan baja pelindung dan membakar kabel pemicu hingga gagal meledak."
+10. **Adegan #10 (`assets/images/short08_t1_07.jpg`)**:
+    - **VO:** "Karena mustahil turun ke perut gunung, bom harus diledakkan lewat sensor radar tepat di atas kawah!"
 
-4. **`short08_t1_01.jpg`** — *"Tahap pertama dimulai saat hulu ledak nuklir dijatuhkan tepat menuju kawah gunung berapi yang sedang aktif."*
-5. **`short08_t1_02.jpg`** — *"Di dalam kawah tersebut, danau lava pijar memiliki suhu ekstrem mencapai seribu dua ratus derajat Celsius."*
-6. **`short08_t1_03.jpg`** — *"Jika bom nuklir biasa langsung menyentuh lava tanpa pelindung panas, logam selubungnya akan mulai meleleh."*
-7. **`short08_t1_04.jpg`** — *"Suhu ekstrem lava dapat merusak rangkaian pemicu elektronik bom sebelum reaksi fisi nuklir sempat dimulai."*
-8. **`short08_t1_05.jpg`** — *"Akibatnya, bom hanya akan hancur meleleh dan mencemari danau lava dengan bahan radioaktif plutonium."*
-9. **`short08_t1_06.jpg`** — *"Namun ceritanya berubah drastis jika bom menggunakan pelindung termal penembus bawah tanah yang diatur waktunya."*
-10. **`short08_t1_07.jpg`** — *"Hulu ledak tersebut menembus saluran kawah hingga masuk jauh ke dalam ruang dapur magma di perut gunung."*
+---
 
-### TAHAP 2: DETONASI INTI (`BOLA API PLASMA, PENGUAPAN MAGMA & GELOMBANG KEJUT SEISMIK`) (Adegan 11–20)
+### TAHAP 2: DETONASI NUKLIR DI ATAS PUNCAK KAWAH, HANCURNYA BIBIR KAWAH & SEMBURAN LAVA ATAS (`Adegan #11–#20`)
+11. **Adegan #11 (`assets/images/short08_t2_01.jpg`)**:
+    - **VO:** "Tahap kedua terjadi saat sensor aktif dan bom nuklir meledak tepat di atas mulut kawah puncak."
+12. **Adegan #12 (`assets/images/short08_t2_02.jpg`)**:
+    - **VO:** "Seketika bola api nuklir bersuhu jutaan derajat mengembang menyilaukan tepat di atas puncak gunung."
+13. **Adegan #13 (`assets/images/short08_t2_03.jpg`)**:
+    - **VO:** "Tekanan raksasa dari bawah bola api itu langsung menghantam permukaan danau lava di mulut kawah."
+14. **Adegan #14 (`assets/images/short08_t2_04.jpg`)**:
+    - **VO:** "Panas ekstremnya langsung menguapkan lapisan atas lava dan batuan kawah menjadi gas pijar."
+15. **Adegan #15 (`assets/images/short08_t2_05.jpg`)**:
+    - **VO:** "Gelombang kejut ledakan dari atas puncak meremukkan dinding kerucut gunung hingga retak hebat."
+16. **Adegan #16 (`assets/images/short08_t2_06.jpg`)**:
+    - **VO:** "Seluruh bibir kawah bagian atas runtuh terlempar, membuat puncak gunung terpenggal dan terbuka lebar."
+17. **Adegan #17 (`assets/images/short08_t2_07.jpg`)**:
+    - **VO:** "Getaran gelombang kejut dari puncak gunung itu mengguncang para peneliti di dalam bunker kaki gunung."
+18. **Adegan #18 (`assets/images/short08_t2_08.jpg`)**:
+    - **VO:** "Hilangnya batuan penutup puncak membuat tekanan saluran lava atas turun drastis bak botol soda terbuka."
+19. **Adegan #19 (`assets/images/short08_t2_09.jpg`)**:
+    - **VO:** "Gas vulkanik di saluran atas langsung menyemburkan air mancur lava pijar tinggi ke angkasa."
+20. **Adegan #20 (`assets/images/short08_t2_10.jpg`)**:
+    - **VO:** "Di atas puncak yang hancur, bola api nuklir menarik abu vulkanik membentuk awan jamur raksasa."
 
-11. **`short08_t2_01.jpg`** — *"Memasuki tahap kedua, hulu ledak nuklir meledak tepat di tengah ruang dapur magma yang tertutup batuan tebal."*
-12. **`short08_t2_02.jpg`** — *"Dalam sepersekian detik, reaksi berantai nuklir menciptakan bola api plasma bersuhu jutaan derajat Celsius."*
-13. **`short08_t2_03.jpg`** — *"Panas luar biasa ini seketika menguapkan jutaan ton batuan cair magma menjadi gas superpanas."*
-14. **`short08_t2_04.jpg`** — *"Perubahan wujud magma cair menjadi gas membuat volumenya mengembang ribuan kali lipat secara mendadak."*
-15. **`short08_t2_05.jpg`** — *"Dinding batuan dapur magma tidak sanggup menahan lonjakan tekanan raksasa yang terkurung di dalamnya."*
-16. **`short08_t2_06.jpg`** — *"Ledakan di bawah tanah ini memicu gelombang kejut seismik setara gempa bumi kuat di sekitar gunung."*
-17. **`short08_t2_07.jpg`** — *"Gelombang kejut tersebut meretakkan seluruh struktur batuan penyangga dinding gunung berapi dari dalam."*
-18. **`short08_t2_08.jpg`** — *"Tekanan gas superpanas akhirnya merobek puncak dan lereng gunung berapi layaknya meriam raksasa."*
-19. **`short08_t2_09.jpg`** — *"Seluruh isi dapur magma terdorong keluar secara serentak dalam letusan dahsyat yang jauh lebih besar dari letusan alami."*
-20. **`short08_t2_10.jpg`** — *"Kolom letusan raksasa yang bercampur partikel radioaktif langsung membubung tinggi menembus awan."*
+---
 
-### TAHAP 3: DAMPAK ATMOSFER (`LONTARAN LAVA RADIOAKTIF, HUJAN ABU NUKLIR & MUSIM DINGIN VULKANIK`) (Adegan 21–30)
-
-21. **`short08_t3_01.jpg`** — *"Memasuki tahap ketiga, jutaan ton batuan cair dan abu yang terpapar radiasi terlontar hingga ke lapisan stratosfer."*
-22. **`short08_t3_02.jpg`** — *"Bongkahan batuan pijar radioaktif menghujani area di sekeliling gunung berapi dalam radius puluhan kilometer."*
-23. **`short08_t3_03.jpg`** — *"Di lereng gunung, awan panas piroklastik bersuhu ratusan derajat meluncur turun dengan kecepatan tinggi."*
-24. **`short08_t3_04.jpg`** — *"Berbeda dengan abu gunung berapi biasa, abu hasil ledakan ini membawa partikel luruhan nuklir yang berbahaya."*
-25. **`short08_t3_05.jpg`** — *"Arus angin di lapisan stratosfer kemudian membawa awan abu radioaktif tersebut menyebar lintas benua."*
-26. **`short08_t3_06.jpg`** — *"Gas belerang dioksida dari magma bereaksi dengan uap air membentuk lapisan aerosol pemantul cahaya matahari."*
-27. **`short08_t3_07.jpg`** — *"Tertutupnya sinar matahari oleh selimut abu dan aerosol memicu penurunan suhu global atau musim dingin vulkanik."*
-28. **`short08_t3_08.jpg`** — *"Sementara itu, hujan asam yang bercampur partikel radioaktif turun mencemari sungai, tanah, dan ekosistem."*
-29. **`short08_t3_09.jpg`** — *"Karena itulah para ilmuwan sepakat bahwa bom nuklir tidak akan pernah bisa digunakan untuk menjinakkan gunung berapi."*
-30. **`short08_outro_01.jpg`** — *"Sebagai gantinya, pemantauan sensor seismik dan evakuasi dini tetap menjadi cara ilmiah terbaik menghadapi erupsi."*
+### TAHAP 3: LONTARAN LAVA RADIOAKTIF, AWAN PANAS LERENG & HUJAN ABU NUKLIR (`Adegan #21–#30`)
+21. **Adegan #21 (`assets/images/short08_t3_01.jpg`)**:
+    - **VO:** "Pada tahap ketiga, ribuan ton batu kawah dan gumpalan lava radioaktif terlontar ke segala arah."
+22. **Adegan #22 (`assets/images/short08_t3_02.jpg`)**:
+    - **VO:** "Runtuhnya kawah atas juga memicu luncuran awan panas radioaktif yang melesat menuruni lereng gunung."
+23. **Adegan #23 (`assets/images/short08_t3_03.jpg`)**:
+    - **VO:** "Gelombang awan panas mematikan itu langsung menghanguskan seluruh hutan di lereng bawah gunung."
+24. **Adegan #24 (`assets/images/short08_t3_04.jpg`)**:
+    - **VO:** "Sementara itu, kolom awan jamur berdebu radioaktif terus menjulang tinggi menembus stratosfer."
+25. **Adegan #25 (`assets/images/short08_t3_05.jpg`)**:
+    - **VO:** "Gesekan abu vulkanik dan udara terionisasi memicu sambaran petir vulkanik di dalam kolom asap."
+26. **Adegan #26 (`assets/images/short08_t3_06.jpg`)**:
+    - **VO:** "Angin stratosfer kemudian menyeret awan abu beracun yang mengandung isotop berbahaya itu ke wilayah luas."
+27. **Adegan #27 (`assets/images/short08_t3_07.jpg`)**:
+    - **VO:** "Saat uap air mengembun, turunlah hujan lumpur abu hitam yang asam dan radioaktif di perkotaan."
+28. **Adegan #28 (`assets/images/short08_t3_08.jpg`)**:
+    - **VO:** "Warga terpaksa berlindung di dalam gedung sambil memantau detektor radiasi saat abu hitam menimbun kota."
+29. **Adegan #29 (`assets/images/short08_t3_09.jpg`)**:
+    - **VO:** "Lapisan aerosol sulfat dan debu di stratosfer juga memantulkan sinar matahari dan mendinginkan cuaca."
+30. **Adegan #30 (`assets/images/short08_t3_10.jpg`)**:
+    - **VO:** "Jadi bom nuklir tidak akan menembus perut gunung, melainkan menghancurkan puncaknya dan memicu hujan abu radioaktif!"
