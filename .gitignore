@@ -1,0 +1,9 @@
+# Binary production assets stay in Google Drive, not Git.
+/assets/images/
+/output/*
+!/output/*.json
+*.mp3
+*.mp4
+*.wav
+*.zip
+.venv/

@@ -1,0 +1,283 @@
+{
+  "title": "Kenapa membaca di mobil bikin mabuk?",
+  "fps": 60,
+  "resolution": [
+    1080,
+    1920
+  ],
+  "duration": 169.392,
+  "voiceover": "output/VO_Master_Short01_30_Adegan_9x16.mp3",
+  "timing_note": "Estimated scene cuts, proportional to character length within each 5-scene VO chunk; verify by listening before publish.",
+  "scenes": [
+    {
+      "scene": 1,
+      "chunk": "c1",
+      "vo": "Pernah membaca saat mobil melaju, lalu perutmu mendadak terasa sangat tidak nyaman?",
+      "visual": "Maskot berkacamata hitam di studio memegang buku polos, di belakangnya mobil bergerak di jalan; gestur bertanya.",
+      "image": "assets/images/short01_intro_01.jpg",
+      "start": 0.0,
+      "end": 5.0939
+    },
+    {
+      "scene": 2,
+      "chunk": "c1",
+      "vo": "Anehnya, buku itu tetap diam di tanganmu, tetapi kendaraan terus bergerak maju.",
+      "visual": "Maskot menunjuk buku polos dan siluet mobil di kejauhan; ekspresi penasaran.",
+      "image": "assets/images/short01_intro_02.jpg",
+      "start": 5.0939,
+      "end": 9.9423
+    },
+    {
+      "scene": 3,
+      "chunk": "c1",
+      "vo": "Masalahnya bukan hurufnya, melainkan pesan tentang gerak yang saling bertentangan di otak.",
+      "visual": "Maskot menunjuk ilustrasi dua jalur visual dan vestibular menuju otak, tanpa ikon berhuruf.",
+      "image": "assets/images/short01_intro_03.jpg",
+      "start": 9.9423,
+      "end": 15.4658
+    },
+    {
+      "scene": 4,
+      "chunk": "c1",
+      "vo": "Sekarang bayangkan seorang penumpang membuka buku ketika mobil mulai melewati tikungan tajam.",
+      "visual": "Cut ke stickman biasa di kursi belakang, sabuk pengaman terpasang, membuka buku polos; jalan mulai menikung.",
+      "image": "assets/images/short01_t1_01.jpg",
+      "start": 15.4658,
+      "end": 21.1734
+    },
+    {
+      "scene": 5,
+      "chunk": "c1",
+      "vo": "Matanya terus terpaku pada halaman, sehingga pemandangan jalan hampir tidak terlihat olehnya.",
+      "visual": "Close-up wajah dan buku penumpang; jendela samping berisi jalan kabur di tepi bingkai.",
+      "image": "assets/images/short01_t1_02.jpg",
+      "start": 21.1734,
+      "end": 27.1608
+    },
+    {
+      "scene": 6,
+      "chunk": "c2",
+      "vo": "Bagi mata, halaman yang dipegang tampak relatif tetap selama ia sedang membaca.",
+      "visual": "POV mata penumpang: halaman polos tetap di pusat fokus sementara bingkai jendela di luar fokus.",
+      "image": "assets/images/short01_t1_03.jpg",
+      "start": 27.1608,
+      "end": 32.1262
+    },
+    {
+      "scene": 7,
+      "chunk": "c2",
+      "vo": "Namun mobil berbelok, dan tubuh penumpang mengalami percepatan ke arah samping tiba-tiba.",
+      "visual": "Eksterior mobil di tikungan; interior inset tanpa teks menunjukkan penumpang sedikit condong relatif ke kursi.",
+      "image": "assets/images/short01_t1_04.jpg",
+      "start": 32.1262,
+      "end": 37.7203
+    },
+    {
+      "scene": 8,
+      "chunk": "c2",
+      "vo": "Di telinga bagian dalam, alat keseimbangan mendeteksi setiap perubahan gerakan kepala tersebut.",
+      "visual": "Potongan anatomi kepala di latar dark slate #1E293B; telinga dalam bercahaya lembut, tanpa tulisan.",
+      "image": "assets/images/short01_t1_05.jpg",
+      "start": 37.7203,
+      "end": 43.6914
+    },
+    {
+      "scene": 9,
+      "chunk": "c2",
+      "vo": "Saluran setengah lingkaran membantu merasakan putaran kepala saat tikungan berikutnya datang lagi.",
+      "visual": "Diagram visual bersih tiga saluran melengkung telinga dalam dengan aliran cairan; tanpa panah bertulisan.",
+      "image": "assets/images/short01_t1_06.jpg",
+      "start": 43.6914,
+      "end": 49.8512
+    },
+    {
+      "scene": 10,
+      "chunk": "c2",
+      "vo": "Organ lainnya juga merasakan percepatan lurus dan perubahan posisi tubuh terhadap gravitasi.",
+      "visual": "Ilustrasi organ otolit dekat saluran telinga dalam; partikel kecil bergeser konseptual saat kendaraan bergerak.",
+      "image": "assets/images/short01_t1_07.jpg",
+      "start": 49.8512,
+      "end": 55.9135
+    },
+    {
+      "scene": 11,
+      "chunk": "c3",
+      "vo": "Jadi telinga dalam melaporkan gerakan, sementara mata sibuk memandangi halaman yang diam.",
+      "visual": "Split visual: telinga dalam merespons tikungan, mata fokus buku polos; penumpang tetap berkursi belakang.",
+      "image": "assets/images/short01_t2_01.jpg",
+      "start": 55.9135,
+      "end": 61.4703
+    },
+    {
+      "scene": 12,
+      "chunk": "c3",
+      "vo": "Sinyal dari otot dan sendi juga turut membantu otak memperkirakan gerakan tubuh.",
+      "visual": "Stickman biasa duduk; detail sendi dan postur secara konseptual terhubung menuju kepala tanpa label.",
+      "image": "assets/images/short01_t2_02.jpg",
+      "start": 61.4703,
+      "end": 66.4652
+    },
+    {
+      "scene": 13,
+      "chunk": "c3",
+      "vo": "Otak biasanya menyatukan semua masukan itu untuk memahami keadaan sekitar kita sendiri.",
+      "visual": "Visual tiga aliran cahaya lembut dari mata, telinga dalam, tubuh menuju otak di latar slate.",
+      "image": "assets/images/short01_t2_03.jpg",
+      "start": 66.4652,
+      "end": 71.8972
+    },
+    {
+      "scene": 14,
+      "chunk": "c3",
+      "vo": "Ketika masukan tidak cocok, perkiraan gerak otak menjadi semakin sulit untuk diselaraskan.",
+      "visual": "Jalur cahaya yang tidak sejajar memasuki otak; ilustrasi abstrak sederhana tanpa teks.",
+      "image": "assets/images/short01_t2_04.jpg",
+      "start": 71.8972,
+      "end": 77.5165
+    },
+    {
+      "scene": 15,
+      "chunk": "c3",
+      "vo": "Inilah konflik sensorik, penjelasan utama mengapa membaca di kendaraan bisa memicu mabuk perjalanan.",
+      "visual": "Potongan penumpang membaca, superposisi transparan mata dan telinga dalam berbeda respons; tanpa tipografi.",
+      "image": "assets/images/short01_t2_05.jpg",
+      "start": 77.5165,
+      "end": 84.0399
+    },
+    {
+      "scene": 16,
+      "chunk": "c4",
+      "vo": "Semakin sering mobil berguncang atau berbelok, konflik itu dapat terasa semakin kuat.",
+      "visual": "Roda mobil melewati jalan bergelombang kecil lalu tikungan; penumpang tetap memakai sabuk.",
+      "image": "assets/images/short01_t2_06.jpg",
+      "start": 84.0399,
+      "end": 89.6472
+    },
+    {
+      "scene": 17,
+      "chunk": "c4",
+      "vo": "Penumpang mulai merasa pusing, berkeringat dingin, dan perutnya perlahan terasa semakin mual.",
+      "visual": "Close-up stickman biasa berkeringat, ekspresi lesu, buku mulai turun dari tangan.",
+      "image": "assets/images/short01_t2_07.jpg",
+      "start": 89.6472,
+      "end": 95.7823
+    },
+    {
+      "scene": 18,
+      "chunk": "c4",
+      "vo": "Gejalanya berbeda antarmanusia; sebagian merasa sakit kepala, sebagian lainnya bahkan bisa muntah.",
+      "visual": "Dua penumpang stickman biasa dalam dua vignette terpisah, ekspresi gejala berbeda, tanpa visual grafis.",
+      "image": "assets/images/short01_t2_08.jpg",
+      "start": 95.7823,
+      "end": 102.2472
+    },
+    {
+      "scene": 19,
+      "chunk": "c4",
+      "vo": "Ini bukan tanda buku beracun, ataupun bukti bahwa semua orang pasti mengalaminya.",
+      "visual": "Penumpang memandang buku polos yang bersih; temannya nyaman membaca, memperjelas variasi individual.",
+      "image": "assets/images/short01_t2_09.jpg",
+      "start": 102.2472,
+      "end": 107.5906
+    },
+    {
+      "scene": 20,
+      "chunk": "c4",
+      "vo": "Kepekaan setiap orang memang berbeda, dan pengalaman berulang kadang membantu proses adaptasi.",
+      "visual": "Perjalanan berulang secara visual tiga jendela waktu non-teks, penumpang lebih nyaman pada akhir.",
+      "image": "assets/images/short01_t2_10.jpg",
+      "start": 107.5906,
+      "end": 114.0714
+    },
+    {
+      "scene": 21,
+      "chunk": "c5",
+      "vo": "Jika mulai mual, berhentilah membaca dan letakkan buku atau ponselmu sejenak dahulu.",
+      "visual": "Penumpang menutup buku polos dan menyimpannya ke samping di kursi belakang.",
+      "image": "assets/images/short01_t3_01.jpg",
+      "start": 114.0714,
+      "end": 119.4596
+    },
+    {
+      "scene": 22,
+      "chunk": "c5",
+      "vo": "Tatap jauh ke depan, misalnya jalan atau cakrawala yang tampak lebih stabil.",
+      "visual": "Sudut pandang penumpang ke depan melalui kaca depan; jalan dan horizon jelas.",
+      "image": "assets/images/short01_t3_02.jpg",
+      "start": 119.4596,
+      "end": 124.3347
+    },
+    {
+      "scene": 23,
+      "chunk": "c5",
+      "vo": "Dengan begitu, mata memperoleh petunjuk gerak yang lebih selaras dengan gerakan tubuh.",
+      "visual": "Refleksi horizon pada mata; aliran visual dan vestibular menuju otak kini sejajar secara konseptual.",
+      "image": "assets/images/short01_t3_03.jpg",
+      "start": 124.3347,
+      "end": 129.8512
+    },
+    {
+      "scene": 24,
+      "chunk": "c5",
+      "vo": "Duduk menghadap arah perjalanan membantu melihat jalan dan mengantisipasi setiap tikungan berikutnya.",
+      "visual": "Penumpang duduk tegak menghadap depan, melihat jalan berkelok yang mendekat.",
+      "image": "assets/images/short01_t3_04.jpg",
+      "start": 129.8512,
+      "end": 136.3299
+    },
+    {
+      "scene": 25,
+      "chunk": "c5",
+      "vo": "Bila memungkinkan, pilih kursi depan sebagai penumpang dan jangan membaca selama perjalanan.",
+      "visual": "Penumpang pindah ke kursi depan sebelum perjalanan berikutnya; sabuk terpasang, buku disimpan.",
+      "image": "assets/images/short01_t3_05.jpg",
+      "start": 136.3299,
+      "end": 142.511
+    },
+    {
+      "scene": 26,
+      "chunk": "c6",
+      "vo": "Menutup mata dan bernapas perlahan juga dapat membantu beberapa orang merasa nyaman.",
+      "visual": "Penumpang duduk tenang, mata tertutup, postur santai; mobil berjalan mulus.",
+      "image": "assets/images/short01_t3_06.jpg",
+      "start": 142.511,
+      "end": 147.7622
+    },
+    {
+      "scene": 27,
+      "chunk": "c6",
+      "vo": "Untuk perjalanan panjang, berhenti sejenak dan mencari udara segar juga bisa membantu.",
+      "visual": "Mobil berhenti aman di rest area; penumpang berdiri di luar mengambil napas.",
+      "image": "assets/images/short01_t3_07.jpg",
+      "start": 147.7622,
+      "end": 153.1384
+    },
+    {
+      "scene": 28,
+      "chunk": "c6",
+      "vo": "Jika keluhan sering berat, tanyakan pilihan pencegahan kepada tenaga kesehatan yang menangani.",
+      "visual": "Penumpang berkonsultasi dengan tenaga kesehatan; gambar tanpa produk, resep, atau tulisan.",
+      "image": "assets/images/short01_t3_08.jpg",
+      "start": 153.1384,
+      "end": 159.0147
+    },
+    {
+      "scene": 29,
+      "chunk": "c6",
+      "vo": "Pusing berulang di luar perjalanan juga perlu diperiksa, bukan dianggap mabuk biasa.",
+      "visual": "Penumpang di rumah merasa pusing tanpa mobil, lalu menghubungi klinik secara visual.",
+      "image": "assets/images/short01_t3_09.jpg",
+      "start": 159.0147,
+      "end": 164.2659
+    },
+    {
+      "scene": 30,
+      "chunk": "c6",
+      "vo": "Jadi, saat mobil bergerak, beri matamu kesempatan untuk melihat gerakan yang sama.",
+      "visual": "Kembali ke maskot berkacamata hitam di studio, gestur ke horizon jalan melalui jendela; penutup hangat.",
+      "image": "assets/images/short01_t3_10.jpg",
+      "start": 164.2659,
+      "end": 169.392
+    }
+  ]
+}
